@@ -1,25 +1,19 @@
----
-const measurementId = "G-DRNFT7XBJP";
----
-
 <!-- Google tag (gtag.js) -->
-<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
-<script is:inline define:vars={{ measurementId }}>
+<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-DRNFT7XBJP"></script>
+<script is:inline>
   window.dataLayer = window.dataLayer || [];
-  window.gtag = window.gtag || function () {
+  window.gtag = window.gtag || function gtag() {
     window.dataLayer.push(arguments);
   };
 
-  window.gtag("js", new Date());
-  window.gtag("config", measurementId, { send_page_view: false });
+  window.gtag('js', new Date());
+  window.gtag('config', 'G-DRNFT7XBJP');
 
-  function sendGooglePageView() {
-    window.gtag("event", "page_view", {
+  document.addEventListener('astro:after-swap', function () {
+    window.gtag('event', 'page_view', {
       page_title: document.title,
       page_location: window.location.href,
       page_path: window.location.pathname + window.location.search,
     });
-  }
-
-  document.addEventListener("astro:page-load", sendGooglePageView);
+  });
 </script>

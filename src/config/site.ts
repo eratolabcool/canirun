@@ -1,8 +1,8 @@
 export const siteConfig = {
-  name: "Local AI Hardware Advisor",
+  name: "CanIRun Local AI Hardware Advisor",
   shortName: "CanIRun Local",
-  question: "Can my PC run this AI model?",
+  question: "Can I Run AI locally?",
   description:
-    "Check whether your PC, GPU, or Mac can run local AI models, then compare the cheapest workable hardware and recommended upgrades.",
+    "Can I Run AI locally on my PC, GPU, or Mac? Detect your hardware, check compatible local AI models, estimate performance, and compare practical upgrades.",
   repositoryUrl: "https://github.com/eratolabcool/canirun",
 } as const;

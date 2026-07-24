@@ -3,12 +3,11 @@ import Logo from "@/icons/logo.svg";
 import { siteConfig } from "@/config/site";
 
 const currentPath = Astro.url.pathname;
-const buildDate = new Date();
 const links = [
-  { href: "/advisor", label: "hardware advisor" },
-  { href: "/compare", label: "compare" },
-  { href: "/tier", label: "tier list" },
-  { href: "/docs", label: "docs" },
+  { href: "/ai-video", label: "AI Video" },
+  { href: "/advisor", label: "Models & Hardware" },
+  { href: "/compare", label: "Compare GPUs" },
+  { href: "/docs", label: "Guides" },
 ];
 
 function isActive(href: string) {
@@ -16,102 +15,87 @@ function isActive(href: string) {
 }
 ---
 
-<nav class="border-b border-edge/40">
-  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
-    <div class="flex items-center gap-2">
-      <a href="/" class="flex items-center gap-1.5 font-pixel text-sm text-accent transition-colors hover:text-primary">
-        <Logo class="size-3" />
-        {siteConfig.shortName}
-      </a>
-      <time id="build-time" class="hidden font-mono text-xs text-primary/40 lg:inline" datetime={buildDate.toISOString()}>
-        updated ...
-      </time>
+<header class="sticky top-0 z-50 border-b border-edge/70 bg-surface/80 backdrop-blur-xl">
+  <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6" aria-label="Primary navigation">
+    <a href="/" class="group flex items-center gap-2.5" aria-label={`${siteConfig.shortName} home`}>
+      <span class="flex size-9 items-center justify-center rounded-xl border border-edge bg-surface-card text-accent shadow-sm transition-colors group-hover:border-accent/50">
+        <Logo class="size-4" />
+      </span>
+      <span class="text-[15px] font-semibold tracking-[-0.02em] text-primary">{siteConfig.shortName}</span>
+    </a>
+
+    <div class="hidden items-center gap-1 md:flex">
+      {links.map(({ href, label }) => (
+        <a
+          href={href}
+          class:list={[
+            "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+            isActive(href) ? "bg-surface-card text-primary" : "text-secondary hover:bg-surface-card/70 hover:text-primary",
+          ]}
+        >
+          {label}
+        </a>
+      ))}
     </div>
 
-    <div class="flex items-center gap-1 sm:gap-4">
-      <div class="hidden items-center gap-4 font-mono text-[13px] sm:flex">
-        {links.map(({ href, label }) => (
-          <a
-            href={href}
-            class:list={[
-              "transition-colors hover:text-accent",
-              isActive(href) ? "text-primary" : "text-primary/70",
-            ]}
-          >
-            [{label}]
-          </a>
-        ))}
-      </div>
-
-      <a
-        href={siteConfig.repositoryUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex size-8 items-center justify-center text-primary/70 transition-colors hover:text-accent"
-        aria-label="Open GitHub repository"
-      >
-        <svg class="size-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <polygon points="23 9 23 15 22 15 22 17 21 17 21 19 20 19 20 20 19 20 19 21 18 21 18 22 16 22 16 23 15 23 15 18 14 18 14 17 15 17 15 16 17 16 17 15 18 15 18 14 19 14 19 9 18 9 18 6 16 6 16 7 15 7 15 8 14 8 14 7 10 7 10 8 9 8 9 7 8 7 8 6 6 6 6 9 5 9 5 14 6 14 6 15 7 15 7 16 9 16 9 18 7 18 7 17 6 17 6 16 4 16 4 17 5 17 5 19 6 19 6 20 9 20 9 23 8 23 8 22 6 22 6 21 5 21 5 20 4 20 4 19 3 19 3 17 2 17 2 15 1 15 1 9 2 9 2 7 3 7 3 5 4 5 4 4 5 4 5 3 7 3 7 2 9 2 9 1 15 1 15 2 17 2 17 3 19 3 19 4 20 4 20 5 21 5 21 7 22 7 22 9 23 9"/>
-        </svg>
-      </a>
-
+    <div class="flex items-center gap-2">
       <button
         id="theme-toggle"
-        class="flex size-8 cursor-pointer items-center justify-center text-primary/70 transition-colors hover:text-accent"
+        class="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-transparent text-secondary transition-colors hover:border-edge hover:bg-surface-card hover:text-primary"
         aria-label="Toggle theme"
       >
-        <svg class="theme-icon-sun size-[18px]" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z"/><path d="M18.313 16.91l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.218 -1.567l.102 .07z"/><path d="M7.007 16.993a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z"/><path d="M4 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z"/><path d="M21 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z"/><path d="M6.213 4.81l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.217 -1.567l.102 .07z"/><path d="M19.107 4.893a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z"/><path d="M12 2a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z"/><path d="M12 7a5 5 0 1 1 -4.995 5.217l-.005 -.217l.005 -.217a5 5 0 0 1 4.995 -4.783z"/></svg>
-        <svg class="theme-icon-moon size-[18px]" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 1.992a10 10 0 1 0 9.236 13.838c.341 -.82 -.476 -1.644 -1.298 -1.31a6.5 6.5 0 0 1 -6.864 -10.787l.077 -.08c.551 -.63 .113 -1.653 -.758 -1.653h-.266l-.068 -.006l-.06 -.002z"/></svg>
+        <svg class="theme-icon-sun size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="theme-icon-moon size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
+
+      <a href="/#hw-panel" class="hidden rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_26px_rgba(101,85,220,0.24)] transition-all hover:-translate-y-0.5 hover:bg-accent-strong sm:inline-flex">
+        Detect my PC
+      </a>
 
       <button
         id="menu-toggle"
-        class="flex size-8 items-center justify-center text-primary/70 transition-colors hover:text-accent sm:hidden"
+        class="flex size-9 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-surface-card hover:text-primary md:hidden"
         aria-label="Open menu"
         aria-expanded="false"
       >
-        <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <line x1="3" y1="5" x2="17" y2="5" />
-          <line x1="3" y1="10" x2="17" y2="10" />
-          <line x1="3" y1="15" x2="17" y2="15" />
-        </svg>
+        <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
       </button>
     </div>
-  </div>
-</nav>
+  </nav>
+</header>
 
 <div
   id="mobile-menu"
-  class="fixed inset-0 z-50 flex flex-col bg-surface transition-all duration-300 ease-out"
+  class="fixed inset-0 z-[60] flex flex-col bg-surface transition-all duration-300 ease-out md:hidden"
   style="opacity:0;visibility:hidden;transform:translateY(-8px)"
   aria-hidden="true"
 >
-  <div class="flex items-center justify-between px-4 py-2.5">
-    <a href="/" class="flex items-center gap-1.5 font-pixel text-sm text-accent transition-colors hover:text-primary">
-      <Logo class="size-3" />
-      {siteConfig.shortName}
+  <div class="flex h-16 items-center justify-between border-b border-edge/70 px-4">
+    <a href="/" class="flex items-center gap-2.5">
+      <span class="flex size-9 items-center justify-center rounded-xl border border-edge bg-surface-card text-accent"><Logo class="size-4" /></span>
+      <span class="font-semibold text-primary">{siteConfig.shortName}</span>
     </a>
-    <button id="menu-close" class="flex size-8 items-center justify-center text-primary/70 transition-colors hover:text-accent" aria-label="Close menu">
-      <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-        <line x1="4" y1="4" x2="16" y2="16" />
-        <line x1="16" y1="4" x2="4" y2="16" />
-      </svg>
+    <button id="menu-close" class="flex size-10 items-center justify-center rounded-xl text-secondary hover:bg-surface-card hover:text-primary" aria-label="Close menu">
+      <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
     </button>
   </div>
 
-  <div class="flex flex-1 flex-col items-center justify-center gap-6">
-    <a href="/" class="mobile-menu-link font-mono text-2xl text-primary/70 transition-colors hover:text-accent">[detect my pc]</a>
-    {links.map(({ href, label }) => (
-      <a
-        href={href}
-        class:list={[
-          "mobile-menu-link font-mono text-2xl transition-colors hover:text-accent",
-          isActive(href) ? "text-accent" : "text-primary/70",
-        ]}
-      >
-        [{label}]
-      </a>
-    ))}
+  <div class="flex flex-1 flex-col px-5 py-8">
+    <p class="eyebrow">Explore</p>
+    <div class="mt-6 grid gap-2">
+      {links.map(({ href, label }) => (
+        <a
+          href={href}
+          class:list={[
+            "mobile-menu-link rounded-2xl px-4 py-4 text-xl font-semibold transition-colors",
+            isActive(href) ? "bg-surface-card text-accent" : "text-primary hover:bg-surface-card",
+          ]}
+        >
+          {label}
+        </a>
+      ))}
+    </div>
+    <a href="/#hw-panel" class="mobile-menu-link primary-button mt-auto">Detect my PC</a>
   </div>
 </div>
 
@@ -151,20 +135,6 @@ function isActive(href: string) {
     });
   }
 
-  function updateBuildTime() {
-    const el = document.getElementById("build-time") as HTMLTimeElement | null;
-    if (!el) return;
-    const buildISO = el.getAttribute("datetime");
-    if (!buildISO) return;
-
-    const diffMs = Date.now() - new Date(buildISO).getTime();
-    const mins = Math.floor(diffMs / 60_000);
-    const hours = Math.floor(diffMs / 3_600_000);
-    const days = Math.floor(diffMs / 86_400_000);
-    const relative = days > 0 ? `${days}d ago` : hours > 0 ? `${hours}h ago` : mins > 0 ? `${mins}m ago` : "just now";
-    el.textContent = `updated ${relative}`;
-  }
-
   function initThemeToggle() {
     const btn = document.getElementById("theme-toggle");
     if (!btn || btn.dataset.ready === "true") return;
@@ -172,12 +142,11 @@ function isActive(href: string) {
     btn.addEventListener("click", () => {
       const isLight = document.documentElement.classList.toggle("light");
       localStorage.setItem("theme", isLight ? "light" : "dark");
-      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isLight ? "#ffffff" : "#08080a");
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isLight ? "#f6f7fc" : "#080b17");
     });
   }
 
   document.addEventListener("astro:page-load", () => {
-    updateBuildTime();
     initNavHeader();
     initThemeToggle();
   });

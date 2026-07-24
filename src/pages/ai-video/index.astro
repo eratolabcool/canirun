@@ -1,0 +1,444 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import NavHeader from "@/components/NavHeader.astro";
+import Footer from "@/components/Footer.astro";
+import {
+  calculatorGpus,
+  precisionMultipliers,
+  resolutionPresets,
+  videoFamilies,
+  videoModelVariants,
+} from "@/data/video-models";
+import { siteConfig } from "@/config/site";
+
+const title = `Can I Run AI Video? GPU and VRAM Calculator — ${siteConfig.shortName}`;
+const description = "Can I Run AI Video on my GPU? Estimate VRAM, generation time, maximum resolution, frame count, quantization, CPU offload, and cloud GPU options for Wan, HunyuanVideo, and LTX Video.";
+const faq = [
+  {
+    question: "Can I run AI video on a 12GB GPU?",
+    answer: "Yes, but model choice matters. Lightweight Wan and older LTX Video workflows can fit, while Wan 14B, original HunyuanVideo, and full LTX 2.3 need much more memory or aggressive offload.",
+  },
+  {
+    question: "What affects AI video VRAM use?",
+    answer: "Model weights, precision, resolution, frame count, VAE, text encoders, ControlNet or LoRA nodes, batch size, and whether components are offloaded to system RAM all affect peak VRAM.",
+  },
+  {
+    question: "Are generation time estimates exact?",
+    answer: "No. They are planning ranges. Runtime version, drivers, attention implementation, step count, thermal limits, and workflow nodes can change real generation time substantially.",
+  },
+];
+---
+
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Can I Run AI Video",
+      url: new URL("/ai-video", Astro.site).href,
+      description,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Web Browser",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    })}></script>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
+    })}></script>
+  </Fragment>
+
+  <NavHeader />
+
+  <main class="pb-24">
+    <section class="relative overflow-hidden border-b border-edge/70">
+      <div class="hero-orb hero-orb-one"></div>
+      <div class="hero-orb hero-orb-two"></div>
+      <div class="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div class="max-w-4xl">
+          <a href="/" class="eyebrow">Local AI hardware lab</a>
+          <h1 class="mt-5 text-5xl font-semibold tracking-[-0.045em] text-primary sm:text-7xl">
+            Can I Run AI Video?
+          </h1>
+          <p class="mt-6 max-w-3xl text-lg leading-8 text-secondary sm:text-xl">
+            Calculate whether your GPU can run Wan, HunyuanVideo, or LTX. Get a practical VRAM range, generation-time estimate, safe resolution, frame limit, quantization, offload plan, and cloud fallback.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3 text-sm text-secondary">
+            <span class="soft-pill">Wan 2.1 / 2.2</span>
+            <span class="soft-pill">HunyuanVideo / 1.5</span>
+            <span class="soft-pill">LTX Video / LTX 2.3</span>
+            <span class="soft-pill">ComfyUI planning</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+      <div
+        class="grid gap-6 lg:grid-cols-[0.84fr_1.16fr]"
+        data-video-calculator
+        data-models={JSON.stringify(videoModelVariants)}
+        data-gpus={JSON.stringify(calculatorGpus)}
+        data-resolutions={JSON.stringify(resolutionPresets)}
+        data-precision-multipliers={JSON.stringify(precisionMultipliers)}
+      >
+        <form class="glass-panel h-fit p-5 sm:p-7" data-calculator-form>
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="eyebrow">Workload inputs</p>
+              <h2 class="mt-2 text-2xl font-semibold">Describe your generation</h2>
+            </div>
+            <span class="status-dot">Live</span>
+          </div>
+
+          <div class="mt-7 grid gap-5">
+            <label class="field-label">
+              <span>AI video model</span>
+              <select data-field="model" class="modern-input">
+                {videoFamilies.map((family) => (
+                  <optgroup label={family.name}>
+                    {videoModelVariants.filter((model) => model.family === family.slug).map((model) => (
+                      <option value={model.slug}>{model.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </label>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <label class="field-label">
+                <span>GPU or system</span>
+                <select data-field="gpu" class="modern-input">
+                  {calculatorGpus.map((gpu) => <option value={gpu.slug}>{gpu.name}</option>)}
+                </select>
+              </label>
+              <label class="field-label">
+                <span>System RAM</span>
+                <select data-field="ram" class="modern-input">
+                  {[16, 24, 32, 48, 64, 96, 128, 256].map((ram) => <option value={ram} selected={ram === 32}>{ram} GB</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <label class="field-label">
+                <span>Task</span>
+                <select data-field="task" class="modern-input">
+                  <option value="t2v">Text to video</option>
+                  <option value="i2v">Image to video</option>
+                  <option value="v2v">Video to video</option>
+                </select>
+              </label>
+              <label class="field-label">
+                <span>Resolution</span>
+                <select data-field="resolution" class="modern-input">
+                  {resolutionPresets.map((preset) => <option value={preset.slug}>{preset.label}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div class="grid gap-5 sm:grid-cols-3">
+              <label class="field-label">
+                <span>Duration</span>
+                <select data-field="duration" class="modern-input">
+                  {[3, 5, 8, 10, 15, 20].map((seconds) => <option value={seconds} selected={seconds === 5}>{seconds} seconds</option>)}
+                </select>
+              </label>
+              <label class="field-label">
+                <span>Frame rate</span>
+                <select data-field="fps" class="modern-input">
+                  {[16, 20, 24, 25, 30].map((fps) => <option value={fps} selected={fps === 16}>{fps} FPS</option>)}
+                </select>
+              </label>
+              <label class="field-label">
+                <span>Precision</span>
+                <select data-field="precision" class="modern-input"></select>
+              </label>
+            </div>
+
+            <label class="flex items-start gap-3 rounded-2xl border border-edge bg-surface-card/60 p-4">
+              <input data-field="offload" type="checkbox" checked class="mt-1 size-4 accent-current" />
+              <span>
+                <strong class="block text-sm text-primary">Allow CPU offload</strong>
+                <span class="mt-1 block text-xs leading-5 text-secondary">Use system RAM for model components when VRAM is tight. This can make generation substantially slower.</span>
+              </span>
+            </label>
+          </div>
+        </form>
+
+        <section class="glass-panel overflow-hidden" aria-live="polite">
+          <div class="border-b border-edge/70 p-5 sm:p-7">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p class="eyebrow">Compatibility result</p>
+                <h2 data-result="headline" class="mt-2 text-3xl font-semibold tracking-tight">Calculating…</h2>
+                <p data-result="summary" class="mt-3 max-w-2xl text-sm leading-6 text-secondary"></p>
+              </div>
+              <span data-result="verdict" class="result-badge">Checking</span>
+            </div>
+          </div>
+
+          <div class="grid gap-px bg-edge/70 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["vram", "Estimated peak VRAM"],
+              ["time", "Generation time"],
+              ["resolution", "Maximum safe resolution"],
+              ["frames", "Maximum safe frames"],
+              ["precision", "Recommended precision"],
+              ["offload", "CPU offload"],
+            ].map(([key, label]) => (
+              <article class="bg-surface-raised p-5" data-metric={key}>
+                <p class="text-xs font-medium uppercase tracking-[0.12em] text-muted">{label}</p>
+                <p data-metric-value class="mt-2 text-xl font-semibold text-primary">—</p>
+                <p data-metric-note class="mt-2 text-xs leading-5 text-secondary"></p>
+              </article>
+            ))}
+          </div>
+
+          <div class="grid gap-6 p-5 sm:p-7 lg:grid-cols-2">
+            <article>
+              <p class="eyebrow">Optimization plan</p>
+              <h3 class="mt-2 text-xl font-semibold">Recommended local settings</h3>
+              <ul data-result="optimizations" class="mt-4 space-y-3 text-sm leading-6 text-secondary"></ul>
+            </article>
+            <article class="rounded-2xl border border-edge bg-surface-card/70 p-5">
+              <p class="eyebrow">Fallback option</p>
+              <h3 data-result="cloud-title" class="mt-2 text-xl font-semibold">Cloud GPU</h3>
+              <p data-result="cloud-copy" class="mt-3 text-sm leading-6 text-secondary"></p>
+              <a href="/advisor/hardware/cloud-gpu-48gb" class="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-strong">Compare cloud and local hardware →</a>
+            </article>
+          </div>
+
+          <div class="border-t border-edge/70 px-5 py-4 text-xs leading-5 text-muted sm:px-7">
+            Planning estimate, not a benchmark guarantee. Custom nodes, LoRAs, ControlNet, VAE mode, drivers, runtime version, and thermal limits can change the result.
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Model guides</p>
+          <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Start with the model family</h2>
+        </div>
+        <p class="max-w-2xl text-sm leading-6 text-secondary">Each guide separates official hardware statements from our planning estimates and explains which model version actually fits your GPU.</p>
+      </div>
+      <div class="mt-8 grid gap-5 lg:grid-cols-3">
+        {videoFamilies.map((family) => (
+          <a href={`/ai-video/${family.slug}`} class="feature-card group">
+            <span class="eyebrow">{family.provider}</span>
+            <h3 class="mt-4 text-2xl font-semibold group-hover:text-accent">{family.name}</h3>
+            <p class="mt-3 text-sm leading-6 text-secondary">{family.overview}</p>
+            <span class="mt-6 inline-flex text-sm font-semibold text-accent">Open {family.name} guide →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-4xl px-4 py-14 sm:px-6">
+      <p class="eyebrow text-center">Frequently asked questions</p>
+      <h2 class="mt-3 text-center text-3xl font-semibold tracking-tight">AI video hardware questions</h2>
+      <div class="mt-8 space-y-4">
+        {faq.map((item) => (
+          <details class="faq-card group">
+            <summary class="cursor-pointer list-none text-lg font-semibold text-primary">{item.question}</summary>
+            <p class="mt-3 text-sm leading-6 text-secondary">{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+  <script>
+    type Precision = "bf16" | "fp16" | "fp8" | "int8" | "gguf";
+    interface Model {
+      slug: string;
+      family: string;
+      name: string;
+      summary: string;
+      tasks: string[];
+      baselineVramGb: number;
+      minimumVramGb: number;
+      recommendedVramGb: number;
+      minimumRamGb: number;
+      recommendedRamGb: number;
+      baselineWidth: number;
+      baselineHeight: number;
+      baselineFrames: number;
+      baselineSteps: number;
+      supportedPrecisions: Precision[];
+      defaultPrecision: Precision;
+      offloadSupported: boolean;
+      preferredRuntime: string;
+      optimizationFlags: string[];
+      speedReference?: { gpu: string; speedIndex: number; seconds: number; width: number; height: number; frames: number; steps: number; precision: Precision };
+    }
+    interface Gpu { slug: string; name: string; vramGb: number; speedIndex: number; kind: "nvidia" | "apple" | "cloud" }
+    interface Resolution { slug: string; label: string; width: number; height: number }
+
+    function initVideoCalculator() {
+      document.querySelectorAll<HTMLElement>("[data-video-calculator]").forEach((root) => {
+        if (root.dataset.ready === "true") return;
+        root.dataset.ready = "true";
+
+        const models = JSON.parse(root.dataset.models || "[]") as Model[];
+        const gpus = JSON.parse(root.dataset.gpus || "[]") as Gpu[];
+        const resolutions = JSON.parse(root.dataset.resolutions || "[]") as Resolution[];
+        const multipliers = JSON.parse(root.dataset.precisionMultipliers || "{}") as Record<Precision, number>;
+        const fields = (name: string) => root.querySelector<HTMLSelectElement | HTMLInputElement>(`[data-field="${name}"]`)!;
+        const metric = (key: string, value: string, note: string) => {
+          const card = root.querySelector<HTMLElement>(`[data-metric="${key}"]`);
+          if (!card) return;
+          const valueNode = card.querySelector<HTMLElement>("[data-metric-value]");
+          const noteNode = card.querySelector<HTMLElement>("[data-metric-note]");
+          if (valueNode) valueNode.textContent = value;
+          if (noteNode) noteNode.textContent = note;
+        };
+        const setResult = (key: string, value: string) => {
+          const node = root.querySelector<HTMLElement>(`[data-result="${key}"]`);
+          if (node) node.textContent = value;
+        };
+
+        function currentModel() { return models.find((model) => model.slug === fields("model").value) ?? models[0]; }
+        function currentGpu() { return gpus.find((gpu) => gpu.slug === fields("gpu").value) ?? gpus[0]; }
+        function currentResolution() { return resolutions.find((preset) => preset.slug === fields("resolution").value) ?? resolutions[0]; }
+
+        function syncModelOptions() {
+          const model = currentModel();
+          const precision = fields("precision") as HTMLSelectElement;
+          const previous = precision.value;
+          precision.innerHTML = "";
+          model.supportedPrecisions.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item;
+            option.textContent = item.toUpperCase();
+            precision.appendChild(option);
+          });
+          precision.value = model.supportedPrecisions.includes(previous as Precision) ? previous : model.defaultPrecision;
+
+          const task = fields("task") as HTMLSelectElement;
+          Array.from(task.options).forEach((option) => { option.disabled = !model.tasks.includes(option.value); });
+          if (!model.tasks.includes(task.value)) task.value = model.tasks[0];
+        }
+
+        function estimatePeak(model: Model, resolution: Resolution, frames: number, precision: Precision, offload: boolean) {
+          const pixelRatio = (resolution.width * resolution.height) / (model.baselineWidth * model.baselineHeight);
+          const frameRatio = Math.max(0.2, frames / model.baselineFrames);
+          const memory = model.baselineVramGb * multipliers[precision] * Math.pow(pixelRatio, 0.62) * Math.pow(frameRatio, 0.42) + 1.1;
+          return Math.max(2.5, memory * (offload && model.offloadSupported ? 0.76 : 1));
+        }
+
+        function choosePrecision(model: Model, gpu: Gpu, resolution: Resolution, frames: number, offload: boolean) {
+          return [...model.supportedPrecisions]
+            .sort((a, b) => multipliers[a] - multipliers[b])
+            .find((precision) => estimatePeak(model, resolution, frames, precision, offload) <= gpu.vramGb * 0.94) ?? model.supportedPrecisions.at(-1)!;
+        }
+
+        function formatDuration(seconds: number) {
+          if (seconds < 60) return `${Math.max(1, Math.round(seconds))} sec`;
+          const minutes = Math.floor(seconds / 60);
+          const remaining = Math.round(seconds % 60);
+          return remaining ? `${minutes}m ${remaining}s` : `${minutes} min`;
+        }
+
+        function render() {
+          const model = currentModel();
+          const gpu = currentGpu();
+          const resolution = currentResolution();
+          const ram = Number(fields("ram").value);
+          const duration = Number(fields("duration").value);
+          const fps = Number(fields("fps").value);
+          const frames = duration * fps + 1;
+          const precision = fields("precision").value as Precision;
+          const offload = (fields("offload") as HTMLInputElement).checked;
+          const peak = estimatePeak(model, resolution, frames, precision, offload);
+          const appleBlocked = gpu.kind === "apple" && (model.slug.startsWith("ltx-2-3") || model.family === "hunyuan");
+          const directFit = peak <= gpu.vramGb * 0.92 && ram >= model.minimumRamGb;
+          const compromiseFit = !appleBlocked && offload && model.offloadSupported && peak <= gpu.vramGb * 1.38 && ram >= Math.max(model.minimumRamGb, Math.ceil(peak * 2));
+          const verdict = appleBlocked ? "API or cloud recommended" : directFit ? "Runs locally" : compromiseFit ? "Runs with compromises" : "Not recommended locally";
+
+          const badge = root.querySelector<HTMLElement>("[data-result=\"verdict\"]");
+          if (badge) {
+            badge.textContent = verdict;
+            badge.className = `result-badge ${directFit ? "result-good" : compromiseFit ? "result-warn" : "result-bad"}`;
+          }
+          setResult("headline", `${gpu.name} × ${model.name}`);
+          setResult("summary", appleBlocked
+            ? `${model.name} is not a dependable native ${gpu.name} workflow in the documented current runtime. Use an API or NVIDIA cloud GPU.`
+            : directFit
+              ? `This setup has enough estimated VRAM and system RAM for ${resolution.label}, ${frames} frames, and ${precision.toUpperCase()}.`
+              : compromiseFit
+                ? `This should load with CPU offload, but memory headroom is narrow. Reduce frames first if the workflow becomes unstable.`
+                : `The selected workload is above the practical memory budget. Choose a lighter model, lower precision, shorter clip, or cloud GPU.`);
+
+          metric("vram", `${peak.toFixed(1)}–${(peak * 1.12).toFixed(1)} GB`, `${gpu.vramGb} GB detected in the selected GPU profile`);
+
+          let midpoint: number;
+          let confidence: string;
+          const workRatio = ((resolution.width * resolution.height * frames * model.baselineSteps) / (model.baselineWidth * model.baselineHeight * model.baselineFrames * model.baselineSteps));
+          if (model.speedReference) {
+            const referenceWork = model.speedReference.width * model.speedReference.height * model.speedReference.frames * model.speedReference.steps;
+            const currentWork = resolution.width * resolution.height * frames * model.baselineSteps;
+            midpoint = model.speedReference.seconds * (currentWork / referenceWork) * (model.speedReference.speedIndex / Math.max(1, gpu.speedIndex));
+            confidence = "Medium confidence · benchmark anchored";
+          } else {
+            midpoint = (model.baselineVramGb * model.baselineSteps * Math.max(0.35, workRatio) * 3.8) / Math.max(4, gpu.speedIndex);
+            confidence = "Low confidence · workload model only";
+          }
+          if (offload && peak > gpu.vramGb * 0.82) midpoint *= 1.65;
+          if (appleBlocked) midpoint = 0;
+          metric("time", appleBlocked ? "API only" : `${formatDuration(midpoint * 0.68)}–${formatDuration(midpoint * 1.55)}`, confidence);
+
+          const safeResolutions = resolutions.filter((preset) => estimatePeak(model, preset, frames, precision, offload) <= gpu.vramGb * 0.9);
+          const maxResolution = safeResolutions.at(-1);
+          metric("resolution", maxResolution?.label.split(" · ")[0] ?? "Below 480p", maxResolution ? `${maxResolution.width}×${maxResolution.height} at the selected duration` : "Reduce frames or choose a smaller model");
+
+          const budget = gpu.vramGb * 0.9;
+          const baseAtResolution = model.baselineVramGb * multipliers[precision] * Math.pow((resolution.width * resolution.height) / (model.baselineWidth * model.baselineHeight), 0.62);
+          const usableBudget = Math.max(0.5, (budget - 1.1) / (offload && model.offloadSupported ? 0.76 : 1));
+          const maxFrames = Math.max(9, Math.floor(model.baselineFrames * Math.pow(usableBudget / Math.max(0.5, baseAtResolution), 1 / 0.42)));
+          metric("frames", `${Math.min(721, maxFrames)} frames`, `About ${(Math.min(721, maxFrames) / fps).toFixed(1)} seconds at ${fps} FPS`);
+
+          const recommendedPrecision = choosePrecision(model, gpu, resolution, frames, offload);
+          metric("precision", recommendedPrecision.toUpperCase(), recommendedPrecision === precision ? "Current selection is appropriate" : `Switch from ${precision.toUpperCase()} to improve memory fit`);
+          const needsOffload = peak > gpu.vramGb * 0.82 || model.minimumVramGb > gpu.vramGb;
+          metric("offload", appleBlocked ? "Not applicable" : needsOffload ? "Required" : "Optional", needsOffload ? `Plan for at least ${Math.max(model.recommendedRamGb, Math.ceil(peak * 2))} GB system RAM` : "Keep enabled only when adding LoRAs or larger frames");
+
+          const list = root.querySelector<HTMLElement>("[data-result=\"optimizations\"]");
+          if (list) {
+            const recommendations = [
+              `Runtime: ${model.preferredRuntime}`,
+              `Use ${recommendedPrecision.toUpperCase()} with batch size 1`,
+              needsOffload ? "Enable model and text-encoder offload" : "Keep core diffusion weights on the GPU",
+              ...model.optimizationFlags.slice(0, 3),
+            ];
+            list.innerHTML = recommendations.map((item) => `<li class="flex gap-3"><span class="mt-2 size-1.5 shrink-0 rounded-full bg-accent"></span><span>${item}</span></li>`).join("");
+          }
+
+          const cloud = peak > 42 || model.recommendedVramGb >= 48 ? "H100 80 GB" : peak > 28 ? "A100 80 GB" : "48 GB cloud GPU";
+          setResult("cloud-title", cloud);
+          setResult("cloud-copy", directFit
+            ? "Your local GPU already fits. Rent cloud hardware only for faster batches, longer clips, or a temporary production deadline."
+            : `${cloud} removes the memory bottleneck without requiring a workstation purchase. It is usually the rational option for occasional heavy video generation.`);
+        }
+
+        fields("model").addEventListener("change", () => { syncModelOptions(); render(); });
+        root.querySelectorAll<HTMLSelectElement | HTMLInputElement>("[data-field]").forEach((field) => {
+          if (field.dataset.field !== "model") field.addEventListener("change", render);
+        });
+        fields("gpu").value = "rtx-3060-12gb";
+        syncModelOptions();
+        render();
+      });
+    }
+
+    document.addEventListener("astro:page-load", initVideoCalculator);
+  </script>
+</Layout>

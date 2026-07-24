@@ -7,33 +7,42 @@ interface Props {
 
 const { class: className = "mt-16" } = Astro.props;
 const hasSlot = Astro.slots.has("default");
+const year = new Date().getFullYear();
 ---
 
-<footer class:list={["text-center px-4 pb-10", className]}>
-  <p class="text-sm text-primary inline-flex flex-wrap items-center justify-center gap-2">
-    <span>{siteConfig.name}</span>
-    <span class="text-muted/50" aria-hidden="true">·</span>
-    <a
-      href={siteConfig.repositoryUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-flex items-center gap-1 text-primary underline decoration-edge underline-offset-2 hover:text-accent"
-      aria-label="Open GitHub repository"
-    >
-      <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <polygon points="23 9 23 15 22 15 22 17 21 17 21 19 20 19 20 20 19 20 19 21 18 21 18 22 16 22 16 23 15 23 15 18 14 18 14 17 15 17 15 16 17 16 17 15 18 15 18 14 19 14 19 9 18 9 18 6 16 6 16 7 15 7 15 8 14 8 14 7 10 7 10 8 9 8 9 7 8 7 8 6 6 6 6 9 5 9 5 14 6 14 6 15 7 15 7 16 9 16 9 18 7 18 7 17 6 17 6 16 4 16 4 17 5 17 5 19 6 19 6 20 9 20 9 23 8 23 8 22 6 22 6 21 5 21 5 20 4 20 4 19 3 19 3 17 2 17 2 15 1 15 1 9 2 9 2 7 3 7 3 5 4 5 4 4 5 4 5 3 7 3 7 2 9 2 9 1 15 1 15 2 17 2 17 3 19 3 19 4 20 4 20 5 21 5 21 7 22 7 22 9 23 9"/>
-      </svg>
-      GitHub
-    </a>
-  </p>
-
-  {hasSlot && (
-    <div class="mt-3">
-      <slot />
+<footer class:list={["border-t border-edge/70 bg-surface-raised/45", className]}>
+  <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 md:grid-cols-[1.3fr_0.7fr_0.7fr]">
+    <div>
+      <a href="/" class="text-lg font-semibold tracking-tight text-primary">{siteConfig.shortName}</a>
+      <p class="mt-3 max-w-md text-sm leading-6 text-secondary">
+        A practical hardware decision tool for local language, image, video, audio, and ComfyUI workloads.
+      </p>
+      {hasSlot && <div class="mt-4 text-sm text-secondary"><slot /></div>}
     </div>
-  )}
 
-  <p class="mt-3 text-[13px] text-muted/70 max-w-2xl mx-auto leading-relaxed">
-    Compatibility and memory figures are estimates for planning, not performance guarantees. Product names and trademarks belong to their respective owners. This site is independent and is not endorsed by hardware or model vendors.
-  </p>
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Tools</p>
+      <div class="mt-4 grid gap-3 text-sm text-secondary">
+        <a href="/" class="hover:text-accent">Detect my PC</a>
+        <a href="/ai-video" class="hover:text-accent">Can I Run AI Video</a>
+        <a href="/advisor" class="hover:text-accent">Model hardware advisor</a>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Resources</p>
+      <div class="mt-4 grid gap-3 text-sm text-secondary">
+        <a href="/compare" class="hover:text-accent">Compare hardware</a>
+        <a href="/docs" class="hover:text-accent">Guides</a>
+        <a href={siteConfig.repositoryUrl} target="_blank" rel="noopener noreferrer" class="hover:text-accent">GitHub ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-edge/70 px-4 py-5">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 text-xs leading-5 text-muted sm:flex-row sm:items-center sm:justify-between sm:px-2">
+      <p>© {year} {siteConfig.shortName}. Independent hardware planning estimates.</p>
+      <p class="max-w-3xl">Compatibility, memory, and speed figures are estimates, not performance guarantees. Product names and trademarks belong to their respective owners.</p>
+    </div>
+  </div>
 </footer>

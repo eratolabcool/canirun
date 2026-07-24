@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import NavHeader from "@/components/NavHeader.astro";
 import Footer from "@/components/Footer.astro";
+import HardwareDecisionReport from "@/components/HardwareDecisionReport.astro";
 import {
   advisorModels,
   hardwareForModel,
@@ -73,6 +74,10 @@ const description = `Minimum and recommended hardware for ${model.name}: ${model
         <p class="mt-2 text-3xl font-semibold text-primary">{model.storageGb} GB</p>
       </div>
     </section>
+
+    <div class="-mx-4 mt-10 sm:-mx-6">
+      <HardwareDecisionReport initialModelSlug={model.slug} />
+    </div>
 
     <section class="mt-12 grid gap-5 md:grid-cols-2">
       <article class="rounded-lg border border-edge bg-surface-raised p-6">

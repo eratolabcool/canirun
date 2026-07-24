@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import NavHeader from "@/components/NavHeader.astro";
 import ModelListContent from "@/components/ModelListContent.astro";
+import HardwareDecisionReport from "@/components/HardwareDecisionReport.astro";
 import { siteConfig } from "@/config/site";
 ---
 
@@ -20,6 +21,7 @@ import { siteConfig } from "@/config/site";
   </Fragment>
 
   <NavHeader />
+  <HardwareDecisionReport />
   <ModelListContent>
     <header slot="header" class="mb-10 text-center">
       <p class="font-mono text-xs uppercase tracking-[0.22em] text-accent">Local AI Hardware Advisor</p>

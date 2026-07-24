@@ -1,34 +1,20 @@
 ---
+import { siteConfig } from "@/config/site";
+
 interface Props {
   class?: string;
 }
 
 const { class: className = "mt-16" } = Astro.props;
 const hasSlot = Astro.slots.has("default");
-const githubUrl = "https://github.com/midudev/canirun.ai";
 ---
 
-<footer class:list={["text-center", className]}>
-  <p class="text-sm text-primary inline-flex flex-wrap items-center justify-center gap-1">
-    Built by <a href="https://midu.dev" target="_blank" rel="noopener" class="text-primary underline decoration-edge underline-offset-2 hover:text-accent">midudev</a> for the local AI community
-    <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block" aria-hidden="true">
-      <rect x="2" y="0" width="3" height="1" fill="#ef4444"/>
-      <rect x="8" y="0" width="3" height="1" fill="#ef4444"/>
-      <rect x="1" y="1" width="5" height="1" fill="#ef4444"/>
-      <rect x="7" y="1" width="5" height="1" fill="#ef4444"/>
-      <rect x="0" y="2" width="13" height="1" fill="#ef4444"/>
-      <rect x="0" y="3" width="13" height="1" fill="#ef4444"/>
-      <rect x="0" y="4" width="13" height="1" fill="#ef4444"/>
-      <rect x="1" y="5" width="11" height="1" fill="#ef4444"/>
-      <rect x="2" y="6" width="9" height="1" fill="#ef4444"/>
-      <rect x="3" y="7" width="7" height="1" fill="#ef4444"/>
-      <rect x="4" y="8" width="5" height="1" fill="#ef4444"/>
-      <rect x="5" y="9" width="3" height="1" fill="#ef4444"/>
-      <rect x="6" y="10" width="1" height="1" fill="#ef4444"/>
-    </svg>
-    <span class="mx-1 text-muted/50" aria-hidden="true">·</span>
+<footer class:list={["text-center px-4 pb-10", className]}>
+  <p class="text-sm text-primary inline-flex flex-wrap items-center justify-center gap-2">
+    <span>{siteConfig.name}</span>
+    <span class="text-muted/50" aria-hidden="true">·</span>
     <a
-      href={githubUrl}
+      href={siteConfig.repositoryUrl}
       target="_blank"
       rel="noopener noreferrer"
       class="inline-flex items-center gap-1 text-primary underline decoration-edge underline-offset-2 hover:text-accent"
@@ -47,7 +33,7 @@ const githubUrl = "https://github.com/midudev/canirun.ai";
     </div>
   )}
 
-  <p class="mt-2 text-[13px] text-muted/70 max-w-xl mx-auto leading-relaxed">
-    All product names, logos, and brands are property of their respective owners. Apple, NVIDIA, AMD, Intel, Qualcomm, and all AI model names mentioned on this site are trademarks or registered trademarks of their respective holders. This site is not affiliated with or endorsed by any of these companies.
+  <p class="mt-3 text-[13px] text-muted/70 max-w-2xl mx-auto leading-relaxed">
+    Compatibility and memory figures are estimates for planning, not performance guarantees. Product names and trademarks belong to their respective owners. This site is independent and is not endorsed by hardware or model vendors.
   </p>
 </footer>

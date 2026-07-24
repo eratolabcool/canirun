@@ -1,0 +1,317 @@
+---
+import {
+  calculatorGpus,
+  precisionMultipliers,
+  resolutionPresets,
+  videoFamilies,
+  videoModelVariants,
+} from "@/data/video-models";
+---
+
+<section
+  id="calculator"
+  class="mx-auto max-w-6xl scroll-mt-24 px-4 py-12 sm:px-6 sm:py-16"
+>
+  <div
+    class="grid gap-6 lg:grid-cols-[0.84fr_1.16fr]"
+    data-video-calculator
+    data-models={JSON.stringify(videoModelVariants)}
+    data-gpus={JSON.stringify(calculatorGpus)}
+    data-resolutions={JSON.stringify(resolutionPresets)}
+    data-precision-multipliers={JSON.stringify(precisionMultipliers)}
+  >
+    <form class="glass-panel h-fit p-5 sm:p-7" data-calculator-form>
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="eyebrow">Workload inputs</p>
+          <h2 class="mt-2 text-2xl font-semibold">Describe your generation</h2>
+        </div>
+        <span class="status-dot">Live</span>
+      </div>
+
+      <div class="mt-7 grid gap-5">
+        <label class="field-label">
+          <span>AI video model</span>
+          <select data-field="model" class="modern-input">
+            {videoFamilies.map((family) => (
+              <optgroup label={family.name}>
+                {videoModelVariants.filter((model) => model.family === family.slug).map((model) => (
+                  <option value={model.slug}>{model.name}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="field-label">
+            <span>GPU or system</span>
+            <select data-field="gpu" class="modern-input">
+              {calculatorGpus.map((gpu) => <option value={gpu.slug}>{gpu.name}</option>)}
+            </select>
+          </label>
+          <label class="field-label">
+            <span>System RAM</span>
+            <select data-field="ram" class="modern-input">
+              {[16, 24, 32, 48, 64, 96, 128, 256].map((ram) => <option value={ram} selected={ram === 32}>{ram} GB</option>)}
+            </select>
+          </label>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="field-label">
+            <span>Task</span>
+            <select data-field="task" class="modern-input">
+              <option value="t2v">Text to video</option>
+              <option value="i2v">Image to video</option>
+              <option value="v2v">Video to video</option>
+            </select>
+          </label>
+          <label class="field-label">
+            <span>Resolution</span>
+            <select data-field="resolution" class="modern-input">
+              {resolutionPresets.map((preset) => <option value={preset.slug}>{preset.label}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <label class="field-label">
+            <span>Duration</span>
+            <select data-field="duration" class="modern-input">
+              {[3, 5, 8, 10, 15, 20].map((seconds) => <option value={seconds} selected={seconds === 5}>{seconds} seconds</option>)}
+            </select>
+          </label>
+          <label class="field-label">
+            <span>Frame rate</span>
+            <select data-field="fps" class="modern-input">
+              {[16, 20, 24, 25, 30].map((fps) => <option value={fps} selected={fps === 16}>{fps} FPS</option>)}
+            </select>
+          </label>
+          <label class="field-label">
+            <span>Batch size</span>
+            <select data-field="batch" class="modern-input">
+              {[1, 2, 4].map((batch) => <option value={batch}>{batch}</option>)}
+            </select>
+          </label>
+          <label class="field-label">
+            <span>Precision</span>
+            <select data-field="precision" class="modern-input"></select>
+          </label>
+        </div>
+
+        <label class="flex items-start gap-3 rounded-2xl border border-edge bg-surface-card/60 p-4">
+          <input data-field="offload" type="checkbox" checked class="mt-1 size-4 accent-current" />
+          <span>
+            <strong class="block text-sm text-primary">Allow CPU offload</strong>
+            <span class="mt-1 block text-xs leading-5 text-secondary">Use system RAM for model components when VRAM is tight. This can make generation substantially slower.</span>
+          </span>
+        </label>
+      </div>
+    </form>
+
+    <section class="glass-panel overflow-hidden" aria-live="polite">
+      <div class="border-b border-edge/70 p-5 sm:p-7">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="eyebrow">Compatibility result</p>
+            <h2 data-result="headline" class="mt-2 text-3xl font-semibold tracking-tight">Calculating…</h2>
+            <p data-result="summary" class="mt-3 max-w-2xl text-sm leading-6 text-secondary"></p>
+          </div>
+          <span data-result="verdict" class="result-badge">Checking</span>
+        </div>
+      </div>
+
+      <div class="grid gap-px bg-edge/70 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          ["vram", "Estimated peak VRAM"],
+          ["time", "Generation time"],
+          ["resolution", "Maximum safe resolution"],
+          ["frames", "Maximum safe frames"],
+          ["precision", "Recommended precision"],
+          ["offload", "CPU offload"],
+        ].map(([key, label]) => (
+          <article class="bg-surface-raised p-5" data-metric={key}>
+            <p class="text-xs font-medium uppercase tracking-[0.12em] text-muted">{label}</p>
+            <p data-metric-value class="mt-2 text-xl font-semibold text-primary">—</p>
+            <p data-metric-note class="mt-2 text-xs leading-5 text-secondary"></p>
+          </article>
+        ))}
+      </div>
+
+      <div class="grid gap-6 p-5 sm:p-7 lg:grid-cols-2">
+        <article>
+          <p class="eyebrow">Optimization plan</p>
+          <h3 class="mt-2 text-xl font-semibold">Recommended local settings</h3>
+          <ul data-result="optimizations" class="mt-4 space-y-3 text-sm leading-6 text-secondary"></ul>
+        </article>
+        <article class="rounded-2xl border border-edge bg-surface-card/70 p-5">
+          <p class="eyebrow">Fallback option</p>
+          <h3 data-result="cloud-title" class="mt-2 text-xl font-semibold">Cloud GPU</h3>
+          <p data-result="cloud-copy" class="mt-3 text-sm leading-6 text-secondary"></p>
+          <a href="/advisor/hardware/cloud-gpu-48gb" class="mt-5 inline-flex text-sm font-semibold text-accent hover:text-accent-strong">Compare cloud and local hardware →</a>
+        </article>
+      </div>
+
+      <div class="border-t border-edge/70 px-5 py-4 text-xs leading-5 text-muted sm:px-7">
+        Planning estimate, not a benchmark guarantee. Custom nodes, LoRAs, ControlNet, VAE mode, drivers, runtime version, and thermal limits can change the result.
+      </div>
+    </section>
+  </div>
+</section>
+
+<script>
+  import { calculateVideoFit } from "@/lib/video-calculator";
+  import type {
+    VideoCalculatorGpu,
+    VideoCalculatorModel,
+    VideoPrecision,
+    VideoResolution,
+    VideoTask,
+  } from "@/lib/video-calculator";
+
+  function formatDuration(seconds: number) {
+    if (seconds < 60) return `${Math.max(1, Math.round(seconds))} sec`;
+    const minutes = Math.floor(seconds / 60);
+    const remaining = Math.round(seconds % 60);
+    return remaining ? `${minutes}m ${remaining}s` : `${minutes} min`;
+  }
+
+  function initVideoCalculator() {
+    document.querySelectorAll<HTMLElement>("[data-video-calculator]").forEach((root) => {
+      if (root.dataset.ready === "true") return;
+      root.dataset.ready = "true";
+
+      const models = JSON.parse(root.dataset.models || "[]") as VideoCalculatorModel[];
+      const gpus = JSON.parse(root.dataset.gpus || "[]") as VideoCalculatorGpu[];
+      const resolutions = JSON.parse(root.dataset.resolutions || "[]") as VideoResolution[];
+      const multipliers = JSON.parse(root.dataset.precisionMultipliers || "{}") as Record<VideoPrecision, number>;
+      const fields = (name: string) => root.querySelector<HTMLSelectElement | HTMLInputElement>(`[data-field="${name}"]`)!;
+      const metric = (key: string, value: string, note: string) => {
+        const card = root.querySelector<HTMLElement>(`[data-metric="${key}"]`);
+        if (!card) return;
+        const valueNode = card.querySelector<HTMLElement>("[data-metric-value]");
+        const noteNode = card.querySelector<HTMLElement>("[data-metric-note]");
+        if (valueNode) valueNode.textContent = value;
+        if (noteNode) noteNode.textContent = note;
+      };
+      const setResult = (key: string, value: string) => {
+        const node = root.querySelector<HTMLElement>(`[data-result="${key}"]`);
+        if (node) node.textContent = value;
+      };
+
+      const currentModel = () => models.find((model) => model.slug === fields("model").value) ?? models[0];
+      const currentGpu = () => gpus.find((gpu) => gpu.slug === fields("gpu").value) ?? gpus[0];
+      const currentResolution = () => resolutions.find((preset) => preset.slug === fields("resolution").value) ?? resolutions[0];
+
+      function syncModelOptions() {
+        const model = currentModel();
+        const precision = fields("precision") as HTMLSelectElement;
+        const previous = precision.value;
+        precision.innerHTML = "";
+        model.supportedPrecisions.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item;
+          option.textContent = item.toUpperCase();
+          precision.appendChild(option);
+        });
+        precision.value = model.supportedPrecisions.includes(previous as VideoPrecision) ? previous : model.defaultPrecision;
+
+        const task = fields("task") as HTMLSelectElement;
+        Array.from(task.options).forEach((option) => { option.disabled = !model.tasks.includes(option.value as VideoTask); });
+        if (!model.tasks.includes(task.value as VideoTask)) task.value = model.tasks[0];
+      }
+
+      function render() {
+        const model = currentModel();
+        const gpu = currentGpu();
+        const resolution = currentResolution();
+        const task = fields("task").value as VideoTask;
+        const precision = fields("precision").value as VideoPrecision;
+        const fps = Number(fields("fps").value);
+        const batchSize = Number(fields("batch").value);
+        const result = calculateVideoFit({
+          model,
+          gpu,
+          resolution,
+          task,
+          precision,
+          durationSeconds: Number(fields("duration").value),
+          fps,
+          batchSize,
+          systemRamGb: Number(fields("ram").value),
+          offload: (fields("offload") as HTMLInputElement).checked,
+          resolutions,
+          precisionMultipliers: multipliers,
+        });
+
+        const badge = root.querySelector<HTMLElement>("[data-result=\"verdict\"]");
+        if (badge) {
+          badge.textContent = result.verdict;
+          badge.className = `result-badge ${result.status === "recommended" ? "result-good" : result.status === "compromise" ? "result-warn" : "result-bad"}`;
+        }
+
+        setResult("headline", result.headline);
+        setResult("summary", result.summary);
+        metric("vram", `${result.estimatedVramLowGb.toFixed(1)}–${result.estimatedVramHighGb.toFixed(1)} GB`, `${gpu.vramGb} GB available in the selected profile`);
+        metric(
+          "time",
+          result.generationTimeLowSeconds === null || result.generationTimeHighSeconds === null
+            ? "API or cloud"
+            : `${formatDuration(result.generationTimeLowSeconds)}–${formatDuration(result.generationTimeHighSeconds)}`,
+          result.timeConfidence,
+        );
+        metric(
+          "resolution",
+          result.maximumResolution?.label.split(" · ")[0] ?? "Not available locally",
+          result.maximumResolution ? `${result.maximumResolution.width}×${result.maximumResolution.height} at the selected duration and batch` : "Choose a supported NVIDIA or cloud profile",
+        );
+        metric(
+          "frames",
+          result.maximumFrames === null ? "Not available locally" : `${result.maximumFrames} frames`,
+          result.maximumFrames === null ? "Native local runtime is not supported" : `About ${(result.maximumFrames / fps).toFixed(1)} seconds at ${fps} FPS`,
+        );
+        metric(
+          "precision",
+          result.recommendedPrecision.toUpperCase(),
+          result.recommendedPrecision === precision ? "Current selection preserves the best quality that fits" : `Switch from ${precision.toUpperCase()} for a safer memory fit`,
+        );
+        metric(
+          "offload",
+          result.nativeRuntimeBlocked ? "Not applicable" : result.needsOffload ? "Required" : "Optional",
+          result.nativeRuntimeBlocked ? "Use an API or supported NVIDIA runtime" : result.needsOffload ? `Plan for at least ${result.recommendedRamGb} GB system RAM` : "Enable only when adding heavier workflow nodes",
+        );
+
+        const list = root.querySelector<HTMLElement>("[data-result=\"optimizations\"]");
+        if (list) {
+          list.innerHTML = result.optimizations.map((item) => `<li class="flex gap-3"><span class="mt-2 size-1.5 shrink-0 rounded-full bg-accent"></span><span>${item}</span></li>`).join("");
+        }
+
+        setResult("cloud-title", result.cloudGpu);
+        setResult("cloud-copy", result.status === "recommended"
+          ? "Your local GPU already fits. Rent cloud hardware only for faster batches, longer clips, or a temporary production deadline."
+          : `${result.cloudGpu} removes the memory bottleneck without requiring a workstation purchase. It is usually the rational option for occasional heavy video generation.`);
+
+        const params = new URLSearchParams(window.location.search);
+        params.set("model", model.slug);
+        params.set("gpu", gpu.slug);
+        history.replaceState({}, "", `${window.location.pathname}?${params.toString()}#calculator`);
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const requestedModel = params.get("model");
+      const requestedGpu = params.get("gpu");
+      fields("model").value = models.some((item) => item.slug === requestedModel) ? requestedModel! : models[0]?.slug;
+      fields("gpu").value = gpus.some((item) => item.slug === requestedGpu) ? requestedGpu! : "rtx-3060-12gb";
+      syncModelOptions();
+      render();
+
+      fields("model").addEventListener("change", () => { syncModelOptions(); render(); });
+      root.querySelectorAll<HTMLSelectElement | HTMLInputElement>("[data-field]").forEach((field) => {
+        if (field.dataset.field !== "model") field.addEventListener("change", render);
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initVideoCalculator);
+</script>

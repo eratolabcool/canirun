@@ -11,7 +11,7 @@ interface Props {
 }
 
 const {
-  title = `${siteConfig.shortName} — ${siteConfig.question}`,
+  title = `Can I Run AI Locally? Check Your PC, GPU and Mac — ${siteConfig.shortName}`,
   description = siteConfig.description,
   image = "/og/home.jpg",
   type = "website",
@@ -31,7 +31,7 @@ const ogImageURL = new URL(image, Astro.site);
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#08080a" />
+    <meta name="theme-color" content="#080b17" />
     <meta name="robots" content="index, follow" />
     <meta name="generator" content={Astro.generator} />
 
@@ -41,10 +41,10 @@ const ogImageURL = new URL(image, Astro.site);
           var t=localStorage.getItem("theme");
           if(t==="light"||(!t&&matchMedia("(prefers-color-scheme: light)").matches)){
             document.documentElement.classList.add("light");
-            document.querySelector('meta[name="theme-color"]').setAttribute("content","#ffffff");
+            document.querySelector('meta[name="theme-color"]').setAttribute("content","#f6f7fc");
           } else {
             document.documentElement.classList.remove("light");
-            document.querySelector('meta[name="theme-color"]').setAttribute("content","#08080a");
+            document.querySelector('meta[name="theme-color"]').setAttribute("content","#080b17");
           }
         }
         applyTheme();
@@ -84,30 +84,23 @@ const ogImageURL = new URL(image, Astro.site);
         function show(trigger: HTMLElement) {
           const text = trigger.dataset.tooltip;
           if (!text) return;
-
           if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
           if (currentTrigger === trigger && popup) return;
           hide(true);
-
           currentTrigger = trigger;
           const pos = trigger.dataset.tooltipPos === "bottom" ? "bottom" : "top";
-
           popup = document.createElement("div");
           popup.className = `tooltip-popup${pos === "bottom" ? " tooltip-bottom" : ""}`;
           popup.setAttribute("role", "tooltip");
           popup.textContent = text;
-
           arrow = document.createElement("div");
           arrow.className = `tooltip-arrow tooltip-arrow-${pos === "bottom" ? "bottom" : "top"}`;
           popup.appendChild(arrow);
-
           document.body.appendChild(popup);
-
           const rect = trigger.getBoundingClientRect();
           const popRect = popup.getBoundingClientRect();
           let left = rect.left + rect.width / 2 - popRect.width / 2;
           left = Math.max(8, Math.min(left, window.innerWidth - popRect.width - 8));
-
           let top: number;
           if (pos === "bottom") {
             top = rect.bottom + 8;
@@ -119,14 +112,11 @@ const ogImageURL = new URL(image, Astro.site);
               arrow.className = "tooltip-arrow tooltip-arrow-bottom";
             }
           }
-
           popup.style.left = `${left}px`;
           popup.style.top = `${top}px`;
-
           const arrowLeft = rect.left + rect.width / 2 - left;
           arrow.style.left = `${arrowLeft}px`;
           arrow.style.transform = "translateX(-50%)";
-
           requestAnimationFrame(() => popup?.classList.add("visible"));
         }
 
@@ -134,47 +124,34 @@ const ogImageURL = new URL(image, Astro.site);
           if (!popup) return;
           const el = popup;
           currentTrigger = null;
-
           if (immediate) {
-            el.remove();
-            popup = null;
-            arrow = null;
-            return;
+            el.remove(); popup = null; arrow = null; return;
           }
-
           el.classList.remove("visible");
           const cleanup = () => { el.remove(); if (popup === el) { popup = null; arrow = null; } };
           el.addEventListener("transitionend", cleanup, { once: true });
           setTimeout(cleanup, 250);
         }
 
-        document.addEventListener("mouseover", (e) => {
-          const trigger = (e.target as Element).closest<HTMLElement>("[data-tooltip]");
+        document.addEventListener("mouseover", (event) => {
+          const trigger = (event.target as Element).closest<HTMLElement>("[data-tooltip]");
           if (trigger) show(trigger);
         });
-
-        document.addEventListener("mouseout", (e) => {
-          const trigger = (e.target as Element).closest<HTMLElement>("[data-tooltip]");
+        document.addEventListener("mouseout", (event) => {
+          const trigger = (event.target as Element).closest<HTMLElement>("[data-tooltip]");
           if (!trigger) return;
-          const related = e.relatedTarget as Element | null;
-          if (!trigger.contains(related)) {
-            hideTimeout = setTimeout(() => hide(), 80);
-          }
+          const related = event.relatedTarget as Element | null;
+          if (!trigger.contains(related)) hideTimeout = setTimeout(() => hide(), 80);
         });
-
-        document.addEventListener("focusin", (e) => {
-          const trigger = (e.target as Element).closest<HTMLElement>("[data-tooltip]");
+        document.addEventListener("focusin", (event) => {
+          const trigger = (event.target as Element).closest<HTMLElement>("[data-tooltip]");
           if (trigger) show(trigger);
         });
-
-        document.addEventListener("focusout", (e) => {
-          const trigger = (e.target as Element).closest<HTMLElement>("[data-tooltip]");
+        document.addEventListener("focusout", (event) => {
+          const trigger = (event.target as Element).closest<HTMLElement>("[data-tooltip]");
           if (trigger) hide();
         });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") hide();
-        });
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") hide(); });
       }
 
       initTooltips();

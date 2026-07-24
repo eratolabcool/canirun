@@ -4,9 +4,11 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
 
-// https://astro.build/config
+const site = process.env.SITE_URL ?? 'https://canirun.ai';
+
+// Set SITE_URL in production when the rebranded domain is connected.
 export default defineConfig({
-  site: 'https://canirun.ai',
+  site,
   adapter: vercel(),
   integrations: [sitemap()],
   vite: {

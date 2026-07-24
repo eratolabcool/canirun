@@ -5,10 +5,15 @@ on:
   push:
     branches:
       - main
+      - agent/local-ai-hardware-advisor
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:

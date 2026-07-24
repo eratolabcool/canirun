@@ -1,0 +1,215 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import NavHeader from "@/components/NavHeader.astro";
+import Footer from "@/components/Footer.astro";
+import {
+  advisorModels,
+  hardwareProfiles,
+  categoryLabels,
+  advisorDisclaimer,
+} from "@/data/advisor";
+import { siteConfig } from "@/config/site";
+
+const categories = Object.entries(categoryLabels);
+---
+
+<Layout
+  title={`AI Model Hardware Requirements — ${siteConfig.shortName}`}
+  description="Search a local AI model to see minimum VRAM, recommended RAM, storage, and the cheapest practical PC, GPU, Mac, or cloud option."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: `${siteConfig.shortName} Hardware Advisor`,
+      url: new URL("/advisor", Astro.site).href,
+      description: siteConfig.description,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Web Browser",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    })}></script>
+  </Fragment>
+
+  <NavHeader />
+
+  <main class="mx-auto max-w-6xl px-4 pb-20 pt-12 sm:px-6">
+    <header class="mx-auto max-w-3xl text-center">
+      <p class="font-mono text-xs uppercase tracking-[0.22em] text-accent">Model → hardware</p>
+      <h1 class="mt-4 text-4xl font-semibold tracking-tight text-primary sm:text-6xl">
+        What computer do I need for this AI model?
+      </h1>
+      <p class="mt-5 text-lg leading-8 text-secondary">
+        Compare minimum, comfortable, and professional configurations for language, image, video, speech, music, and ComfyUI workloads.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="#models" class="rounded-md bg-accent px-5 py-3 font-mono text-sm font-semibold text-surface transition-opacity hover:opacity-90">
+          Search by model
+        </a>
+        <a href="#hardware" class="rounded-md border border-edge bg-surface-raised px-5 py-3 font-mono text-sm text-primary transition-colors hover:border-accent">
+          Search by hardware
+        </a>
+        <a href="/" class="rounded-md border border-edge px-5 py-3 font-mono text-sm text-secondary transition-colors hover:border-accent hover:text-primary">
+          Detect my PC
+        </a>
+      </div>
+    </header>
+
+    <section class="mt-16 grid gap-4 sm:grid-cols-3">
+      <article class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs text-accent">01</p>
+        <h2 class="mt-3 text-lg font-semibold">Minimum build</h2>
+        <p class="mt-2 text-sm leading-6 text-secondary">The cheapest configuration that can load the model with a realistic preset.</p>
+      </article>
+      <article class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs text-accent">02</p>
+        <h2 class="mt-3 text-lg font-semibold">Comfortable build</h2>
+        <p class="mt-2 text-sm leading-6 text-secondary">Enough memory headroom for context, larger images, workflow nodes, and normal desktop use.</p>
+      </article>
+      <article class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs text-accent">03</p>
+        <h2 class="mt-3 text-lg font-semibold">Buy or rent</h2>
+        <p class="mt-2 text-sm leading-6 text-secondary">Compare consumer GPUs, Apple unified memory, professional hardware, and cloud GPUs.</p>
+      </article>
+    </section>
+
+    <section id="models" class="mt-20 scroll-mt-8">
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">Reverse search</p>
+          <h2 class="mt-2 text-3xl font-semibold tracking-tight">Choose an AI model</h2>
+          <p class="mt-2 text-secondary">Start with the workload, then see which hardware tiers make sense.</p>
+        </div>
+        <label class="relative block w-full sm:max-w-sm">
+          <span class="sr-only">Search advisor models</span>
+          <input
+            id="advisor-model-search"
+            type="search"
+            placeholder="Search FLUX, Qwen, Whisper..."
+            class="w-full rounded-md border border-edge bg-surface-raised px-4 py-3 font-mono text-sm text-primary outline-none transition-colors placeholder:text-muted focus:border-accent"
+          />
+        </label>
+      </div>
+
+      <div class="mt-6 flex flex-wrap gap-2" aria-label="Model categories">
+        <button class="advisor-filter rounded-full border border-accent bg-accent px-3 py-1.5 font-mono text-xs text-surface" data-category="all">All models</button>
+        {categories.map(([value, label]) => (
+          <button class="advisor-filter rounded-full border border-edge px-3 py-1.5 font-mono text-xs text-secondary transition-colors hover:border-accent hover:text-primary" data-category={value}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div id="advisor-model-grid" class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {advisorModels.map((model) => (
+          <a
+            href={`/advisor/model/${model.slug}`}
+            class="advisor-model-card group rounded-lg border border-edge bg-surface-raised p-5 transition-all hover:-translate-y-0.5 hover:border-accent"
+            data-model-card
+            data-category={model.category}
+            data-search={`${model.name} ${model.provider} ${model.category} ${model.summary}`.toLowerCase()}
+          >
+            <div class="flex items-center justify-between gap-3">
+              <span class="rounded-full border border-edge px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-muted">
+                {categoryLabels[model.category]}
+              </span>
+              <span class="font-mono text-xs text-muted">{model.provider}</span>
+            </div>
+            <h3 class="mt-4 text-xl font-semibold text-primary group-hover:text-accent">{model.name}</h3>
+            <p class="mt-2 min-h-12 text-sm leading-6 text-secondary">{model.summary}</p>
+            <dl class="mt-5 grid grid-cols-3 gap-2 border-t border-edge/60 pt-4 font-mono text-xs">
+              <div>
+                <dt class="text-muted">Min VRAM</dt>
+                <dd class="mt-1 text-primary">{model.minVramGb} GB</dd>
+              </div>
+              <div>
+                <dt class="text-muted">Recommended</dt>
+                <dd class="mt-1 text-primary">{model.recommendedVramGb} GB</dd>
+              </div>
+              <div>
+                <dt class="text-muted">RAM</dt>
+                <dd class="mt-1 text-primary">{model.recommendedRamGb} GB</dd>
+              </div>
+            </dl>
+          </a>
+        ))}
+      </div>
+      <p id="advisor-empty" class="mt-8 hidden rounded-lg border border-dashed border-edge p-8 text-center text-secondary">
+        No model matches that search yet.
+      </p>
+    </section>
+
+    <section id="hardware" class="mt-20 scroll-mt-8">
+      <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">Hardware → models</p>
+      <h2 class="mt-2 text-3xl font-semibold tracking-tight">Choose hardware you own or may buy</h2>
+      <p class="mt-2 text-secondary">See which workloads fit before spending money on a GPU or computer.</p>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {hardwareProfiles.map((hardware) => (
+          <a href={`/advisor/hardware/${hardware.slug}`} class="group rounded-lg border border-edge bg-surface-raised p-5 transition-all hover:-translate-y-0.5 hover:border-accent">
+            <div class="flex items-center justify-between gap-3">
+              <span class="font-mono text-xs uppercase text-accent">{hardware.role}</span>
+              <span class="font-mono text-xs text-muted">{"$".repeat(hardware.priceTier)}</span>
+            </div>
+            <h3 class="mt-3 text-xl font-semibold group-hover:text-accent">{hardware.name}</h3>
+            <p class="mt-2 text-sm leading-6 text-secondary">{hardware.summary}</p>
+            <div class="mt-4 flex gap-4 border-t border-edge/60 pt-4 font-mono text-xs text-secondary">
+              {hardware.unifiedMemory ? (
+                <span>{hardware.ramGb} GB unified</span>
+              ) : (
+                <><span>{hardware.vramGb} GB VRAM</span><span>{hardware.ramGb} GB RAM</span></>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <aside class="mt-16 rounded-lg border border-edge bg-surface-raised p-5 text-sm leading-6 text-secondary">
+      <strong class="text-primary">How to read these estimates:</strong> {advisorDisclaimer}
+    </aside>
+  </main>
+
+  <Footer />
+
+  <script>
+    function initAdvisorFilters() {
+      const search = document.querySelector<HTMLInputElement>("#advisor-model-search");
+      const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-model-card]"));
+      const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>(".advisor-filter"));
+      const empty = document.querySelector<HTMLElement>("#advisor-empty");
+      if (!search || !cards.length || !buttons.length || !empty) return;
+
+      let category = "all";
+      const apply = () => {
+        const query = search.value.trim().toLowerCase();
+        let visible = 0;
+        for (const card of cards) {
+          const categoryMatch = category === "all" || card.dataset.category === category;
+          const searchMatch = !query || card.dataset.search?.includes(query);
+          const show = Boolean(categoryMatch && searchMatch);
+          card.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        }
+        empty.classList.toggle("hidden", visible !== 0);
+      };
+
+      search.addEventListener("input", apply);
+      for (const button of buttons) {
+        button.addEventListener("click", () => {
+          category = button.dataset.category || "all";
+          for (const candidate of buttons) {
+            const active = candidate === button;
+            candidate.classList.toggle("bg-accent", active);
+            candidate.classList.toggle("text-surface", active);
+            candidate.classList.toggle("border-accent", active);
+            candidate.classList.toggle("text-secondary", !active);
+            candidate.classList.toggle("border-edge", !active);
+          }
+          apply();
+        });
+      }
+    }
+
+    document.addEventListener("astro:page-load", initAdvisorFilters);
+  </script>
+</Layout>

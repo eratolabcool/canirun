@@ -1,0 +1,135 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import NavHeader from "@/components/NavHeader.astro";
+import Footer from "@/components/Footer.astro";
+import {
+  hardwareProfiles,
+  modelsForHardware,
+  fitLabel,
+  effectiveModelMemory,
+  categoryLabels,
+  advisorDisclaimer,
+  type HardwareProfile,
+  type FitLevel,
+} from "@/data/advisor";
+import { siteConfig } from "@/config/site";
+
+export function getStaticPaths() {
+  return hardwareProfiles.map((hardware) => ({ params: { slug: hardware.slug }, props: { hardware } }));
+}
+
+interface Props { hardware: HardwareProfile }
+const { hardware } = Astro.props;
+const compatibility = modelsForHardware(hardware);
+const counts = compatibility.reduce<Record<FitLevel, number>>((acc, item) => {
+  acc[item.fit] += 1;
+  return acc;
+}, { recommended: 0, minimum: 0, "not-recommended": 0 });
+const memory = effectiveModelMemory(hardware);
+const title = `${hardware.name} Local AI Models — ${siteConfig.shortName}`;
+const description = `See which LLM, image, video, speech, music, and ComfyUI models run on ${hardware.name}, with practical memory estimates and upgrade guidance.`;
+---
+
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      headline: `${hardware.name} local AI compatibility guide`,
+      description,
+      mainEntityOfPage: Astro.url.href,
+    })}></script>
+  </Fragment>
+
+  <NavHeader />
+  <main class="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6">
+    <nav class="font-mono text-xs text-muted" aria-label="Breadcrumb">
+      <a href="/advisor" class="hover:text-accent">Hardware advisor</a>
+      <span class="mx-2">/</span>
+      <span>{hardware.name}</span>
+    </nav>
+
+    <header class="mt-8">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="rounded-full border border-edge px-3 py-1 font-mono text-xs uppercase tracking-wide text-accent">{hardware.kind}</span>
+        <span class="font-mono text-xs text-muted">{hardware.role}</span>
+      </div>
+      <h1 class="mt-5 text-4xl font-semibold tracking-tight sm:text-6xl">Which local AI models run on {hardware.name}?</h1>
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-secondary">{hardware.summary}</p>
+    </header>
+
+    <section class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-muted">Model memory</p>
+        <p class="mt-2 text-3xl font-semibold">{memory} GB</p>
+        <p class="mt-1 text-xs text-muted">{hardware.unifiedMemory ? "estimated usable unified memory" : "dedicated VRAM"}</p>
+      </div>
+      <div class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-muted">System RAM</p>
+        <p class="mt-2 text-3xl font-semibold">{hardware.ramGb} GB</p>
+      </div>
+      <div class="rounded-lg border border-accent/60 bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-accent">Recommended models</p>
+        <p class="mt-2 text-3xl font-semibold">{counts.recommended}</p>
+      </div>
+      <div class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-muted">Compromise models</p>
+        <p class="mt-2 text-3xl font-semibold">{counts.minimum}</p>
+      </div>
+    </section>
+
+    <section class="mt-14">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">Compatibility matrix</p>
+          <h2 class="mt-2 text-3xl font-semibold">Language, image, video, and audio models</h2>
+        </div>
+        <a href="/" class="font-mono text-sm text-accent hover:underline">Compare with detected PC →</a>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        {compatibility.map(({ model, fit }) => (
+          <a href={`/advisor/model/${model.slug}`} class="group rounded-lg border border-edge bg-surface-raised p-5 transition-colors hover:border-accent">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="font-mono text-[11px] uppercase tracking-wide text-muted">{categoryLabels[model.category]}</p>
+                <h3 class="mt-2 text-lg font-semibold group-hover:text-accent">{model.name}</h3>
+              </div>
+              <span class:list={[
+                "shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px]",
+                fit === "recommended" && "bg-accent/15 text-accent",
+                fit === "minimum" && "bg-surface text-secondary border border-edge",
+                fit === "not-recommended" && "bg-surface text-muted border border-edge/60",
+              ]}>{fitLabel(fit)}</span>
+            </div>
+            <p class="mt-3 text-sm leading-6 text-secondary">{model.summary}</p>
+            <div class="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-edge/60 pt-4 font-mono text-xs text-muted">
+              <span>Min {model.minVramGb} GB</span>
+              <span>Comfortable {model.recommendedVramGb} GB</span>
+              <span>{model.recommendedRamGb} GB RAM</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="mt-14 grid gap-5 md:grid-cols-2">
+      <article class="rounded-lg border border-edge bg-surface-raised p-6">
+        <h2 class="text-2xl font-semibold">Main limitations</h2>
+        <ul class="mt-4 space-y-3 text-sm leading-6 text-secondary">
+          {hardware.limitations.map((limitation) => <li class="flex gap-3"><span class="text-accent">•</span><span>{limitation}</span></li>)}
+          <li class="flex gap-3"><span class="text-accent">•</span><span>{advisorDisclaimer}</span></li>
+        </ul>
+      </article>
+      <article class="rounded-lg border border-accent/60 bg-surface-raised p-6">
+        <p class="font-mono text-xs uppercase tracking-wider text-accent">Decision rule</p>
+        <h2 class="mt-3 text-2xl font-semibold">Do not buy compute without enough memory</h2>
+        <p class="mt-4 text-sm leading-6 text-secondary">
+          For local AI, a faster GPU with too little VRAM can be less useful than a slower card with more memory. Choose the models you need first, then buy the lowest hardware tier that reaches their comfortable target.
+        </p>
+        <a href="/advisor" class="mt-5 inline-flex font-mono text-sm text-accent hover:underline">Compare another model →</a>
+      </article>
+    </section>
+  </main>
+  <Footer />
+</Layout>

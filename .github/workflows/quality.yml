@@ -42,7 +42,7 @@ jobs:
           set -o pipefail
           pnpm build 2>&1 | tee build-output.log
         env:
-          SITE_URL: https://canirun.ai
+          SITE_URL: https://canirun.app
 
       - name: Run tests
         id: tests

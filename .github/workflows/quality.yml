@@ -1,0 +1,71 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck workspace packages
+        run: pnpm packages:typecheck
+
+      - name: Build Astro site
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pnpm build 2>&1 | tee build-output.log
+        env:
+          SITE_URL: https://canirun.ai
+
+      - name: Run tests
+        id: tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pnpm test -- --reporter=verbose 2>&1 | tee test-output.log
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-logs
+          path: |
+            build-output.log
+            test-output.log
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Enforce validation result
+        if: always()
+        run: |
+          if [ "${{ steps.build.outcome }}" != "success" ] || [ "${{ steps.tests.outcome }}" != "success" ]; then
+            echo "Build or tests failed. Download the validation-logs artifact for details."
+            exit 1
+          fi

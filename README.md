@@ -1,151 +1,168 @@
 <div align="center">
 
-<img src="public/favicon.svg" alt="CanIRun.ai" width="80" height="80" />
+<img src="public/favicon.svg" alt="CanIRun Local" width="80" height="80" />
 
-# CanIRun.ai
+# CanIRun Local
 
-**Find out which AI models your hardware can run locally — in seconds.**
+**Local AI Hardware Advisor**
 
-Your browser detects your CPU, RAM and GPU automatically.\
-No installs, no benchmarks, no guesswork.
-
-[**canirun.ai**](https://canirun.ai) · [Report Bug](https://github.com/midudev/canirun.ai/issues) · [Request Model](https://github.com/midudev/canirun.ai/issues)
+Detect your computer to see which models it can run, or start with an AI model to find the cheapest practical GPU, PC, Mac, or cloud setup.
 
 </div>
 
 ---
 
-## Why
+## Product direction
 
-Cloud AI APIs are expensive, rate-limited, and send your data to third parties. Running models locally gives you **privacy, speed, and zero cost per token** — but only if your hardware is up to the job.
+The core question remains:
 
-CanIRun.ai answers that question instantly. Open the site, let it detect your hardware, and see a personalized compatibility report for **68+ open-weight models** with grades from S to F.
+> **Can my PC run this AI model?**
 
-## How It Works
+The product now supports two complementary journeys:
 
+1. **Hardware → models** — browser-based hardware detection and compatibility grading.
+2. **Model → hardware** — minimum, comfortable, professional, Mac, and cloud recommendations.
+
+The advisor expands beyond GGUF language models to cover:
+
+- local LLMs
+- Stable Diffusion and FLUX image generation
+- Qwen-Image
+- Wan and Hunyuan local video models
+- Whisper speech recognition
+- MusicGen
+- Kokoro TTS
+- ComfyUI workflows
+
+## First implementation
+
+This branch adds:
+
+- a centralized brand configuration
+- a cross-modality hardware advisor data layer
+- model-to-hardware recommendation pages
+- hardware-to-model compatibility pages
+- an advisor catalog with search and category filters
+- initial programmatic SEO pages at root-level search-friendly URLs
+- FAQ and technical-article structured data
+- deploy-specific canonical URLs through `SITE_URL`
+- rebranded navigation, metadata, homepage entry points, and footer
+
+### Initial SEO routes
+
+Examples generated from `src/data/advisor.ts`:
+
+```text
+/can-rtx-3060-run-llama-3-1-8b
+/can-rtx-3060-run-deepseek-r1
+/can-mac-mini-m4-pro-run-qwen3-8b
+/best-gpu-for-deepseek-r1
+/llama-3-1-8b-system-requirements
+/flux-system-requirements
+/rtx-4070-local-ai-models
+/32gb-ram-local-ai-models
+/can-rtx-5090-run-wan-2-1-14b
 ```
-Browser APIs → Hardware Detection → Model Matching → Personalized Grades
+
+## How compatibility estimates work
+
+The original client-side detection and GGUF scoring engine remains intact.
+
+The new advisor layer uses curated workload presets with:
+
+- minimum model memory
+- comfortable model memory
+- minimum and recommended system RAM
+- storage budget
+- quantization, resolution, or workflow assumptions
+- hardware-specific limitations
+
+For dedicated GPUs, model memory maps to VRAM. For Apple Silicon, the current estimator conservatively treats 75% of unified memory as potentially usable by the model. These are planning estimates, not benchmark guarantees.
+
+Real usage changes with runtime, quantization, context length, KV cache, resolution, frame count, VAE and text encoders, workflow nodes, drivers, and operating-system overhead.
+
+## Architecture
+
+```text
+src/
+├── config/
+│   └── site.ts                         # Brand and repository settings
+├── data/
+│   └── advisor.ts                      # Cross-modality models, hardware, fit logic, SEO records
+├── pages/
+│   ├── index.astro                     # Hardware detection entry point
+│   ├── advisor/
+│   │   ├── index.astro                 # Reverse-search catalog
+│   │   ├── model/[slug].astro          # Model → hardware
+│   │   └── hardware/[slug].astro       # Hardware → models
+│   └── [seoSlug].astro                 # Curated programmatic SEO pages
+├── components/
+│   ├── ModelListContent.astro          # Existing client-side detector and LLM results
+│   ├── NavHeader.astro
+│   └── Footer.astro
+└── layouts/
+    └── Layout.astro
 ```
 
-1. **Hardware detection** runs entirely client-side using WebGL, WebGPU, `navigator.deviceMemory` and a lightweight CPU micro-benchmark.
-2. Each model's VRAM requirements are calculated across **7 quantization levels** (Q2_K → F16) from parameter count.
-3. A scoring algorithm combines run status, estimated tokens/second, memory headroom and model size into a **letter grade (S–F)**.
-4. Results are displayed instantly — nothing is sent to any server.
+The existing workspace packages remain responsible for the mature LLM engine:
 
-### Supported hardware
+```text
+packages/
+├── compatibility/
+└── models/
+```
 
-| Platform | Detection method |
-|---|---|
-| **NVIDIA** RTX 30xx / 40xx / 50xx, A100, H100 | WebGL renderer string + GPU database |
-| **AMD** RX 6xxx / 7xxx / 9xxx | WebGL renderer string + GPU database |
-| **Intel** Arc A-series | WebGL renderer string + GPU database |
-| **Apple Silicon** M1–M4 (Pro, Max, Ultra) | WebGL + unified memory lookup |
-| **Mobile** (iOS / Android) | Screen resolution, benchmark, Adreno/Mali/Immortalis DB |
+## Development
 
-## Features
-
-- **Zero-install hardware detection** — CPU cores, RAM, GPU model, VRAM and memory bandwidth identified from the browser
-- **68+ AI models** — from TinyLlama 1.1B to Llama 4 Maverick 128E and Qwen3 Coder 480B
-- **7 quantization levels per model** — Q2_K, Q3_K_M, Q4_K_M, Q5_K_M, Q6_K, Q8_0, F16 with computed VRAM sizes
-- **S–F grading system** — instant letter grade based on your hardware vs. model requirements
-- **Tokens/second estimates** — approximate inference speed from memory bandwidth data
-- **Filters** — by use case (chat, code, reasoning, vision), provider, architecture (dense / MoE), features (tool use, thinking)
-- **Search & keyboard shortcuts** — `/` to search, `j`/`k` to navigate, `Enter` to open, `v` to switch view
-- **Three view modes** — compact grid, detailed grid, and list
-- **Tier list** — shareable S–F tier list you can export as an image
-- **Model detail pages** — per-quant compatibility table, one-click Ollama / LM Studio / llama.cpp install commands
-- **OG images** — dynamically generated social preview images for every model
-- **SEO** — Schema.org structured data, sitemap, semantic HTML
-- **View Transitions** — smooth page animations via Astro Client Router
-
-## Model Catalog
-
-Models from **Meta, Google, Alibaba, DeepSeek, Mistral AI, Microsoft, NVIDIA, Liquid AI** and the community:
-
-| Family | Models |
-|---|---|
-| Llama | 3.1 8B, 3.1 405B, 3.2 1B/3B/11B-Vision, 3.3 70B, 4 Scout, 4 Maverick |
-| Qwen | 2.5 7B–72B, 2.5 Coder, 3 1.7B–235B, 3.5 0.8B–397B, 3 Coder 480B |
-| Gemma | 2 2B/9B/27B, 3 1B/4B/12B/27B |
-| DeepSeek | R1 1.5B–32B, V3.1, V3.2 |
-| Mistral | 7B, Nemo 12B, Small 24B, Mixtral 8x7B/8x22B, Devstral |
-| Phi | 3.5 Mini, 4 14B, 4 Mini Reasoning |
-| Others | Nemotron, GLM-4, OLMo 2, SmolLM3, LFM2, EXAONE, Kimi K2, GPT-OSS |
-
-## Tech Stack
-
-| | Technology | Purpose |
-|---|---|---|
-| 🚀 | [Astro 5](https://astro.build) | Static site generation with islands architecture |
-| 🎨 | [Tailwind CSS 4](https://tailwindcss.com) | Utility-first styling |
-| 🔤 | [Geist](https://vercel.com/font) | Sans, Mono and Pixel typefaces |
-| 🖼️ | [Satori](https://github.com/vercel/satori) + [resvg](https://github.com/nicolo-ribaudo/resvg-js) | OG image generation (JSX → SVG → PNG) |
-| 📸 | [@zumer/snapdom](https://github.com/nicolo-ribaudo/snapdom) | Tier list export to image |
-| 🗺️ | [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/) | Automatic sitemap generation |
-
-## Getting Started
-
-**Prerequisites:** [Node.js](https://nodejs.org) 18+ and [pnpm](https://pnpm.io)
+Prerequisites: Node.js 18+ and pnpm.
 
 ```bash
-# Clone the repo
-git clone https://github.com/midudev/canirun.ai.git
-cd canirun.ai
-
-# Install dependencies
 pnpm install
-
-# Start dev server
 pnpm dev
 ```
 
-Open [localhost:4321](http://localhost:4321) to see the site.
+Validation commands:
 
-## Commands
-
-| Command | Action |
-|---|---|
-| `pnpm dev` | Start dev server at `localhost:4321` |
-| `pnpm build` | Build production site to `./dist/` |
-| `pnpm preview` | Preview production build locally |
-| `pnpm scrape` | Fetch model stats from HuggingFace |
-
-## Project Structure
-
-```
-src/
-├── data/
-│   ├── models.ts          # 68+ AI model definitions with quant calculations
-│   └── hf-stats.json      # HuggingFace download/like counts
-├── lib/
-│   ├── hardware.ts         # Client-side hardware detection engine
-│   └── og.ts               # OG image generation utilities
-├── pages/
-│   ├── index.astro         # Home — model grid with filters & search
-│   ├── tier.astro          # Tier list — S–F ranking with image export
-│   ├── model/[id].astro    # Model detail — quants, compatibility, install
-│   └── og/                 # Dynamic OG image endpoints
-├── components/
-│   └── NavHeader.astro     # Site navigation
-├── layouts/
-│   └── Layout.astro        # Base layout with SEO, fonts, transitions
-├── icons/                  # SVG icon components
-└── styles/
-    └── global.css          # Theme tokens, Geist fonts, dark mode
+```bash
+pnpm packages:typecheck
+pnpm test
+pnpm build
 ```
 
-## Contributing
+Set the production domain before deployment:
 
-Contributions are welcome! Some ways to help:
+```bash
+SITE_URL=https://your-domain.example pnpm build
+```
 
-- **Add a model** — add an entry to `src/data/models.ts` following the existing pattern
-- **Improve hardware detection** — extend the GPU/Apple/Mobile databases in `src/lib/hardware.ts`
-- **Report inaccurate results** — open an issue with your hardware info and the model in question
-- **Fix bugs or improve UI** — PRs are appreciated
+## Data maintenance
 
-## Author
+Each advisor model should define a precise tested preset. Do not publish one unexplained number as a universal requirement.
 
-Created by [**midudev**](https://midu.dev) · [@midudev](https://twitter.com/midudev)
+When adding or updating a model:
+
+1. link to the primary model card or official documentation
+2. record quantization, precision, context, resolution, or offload assumptions
+3. separate minimum loading requirements from a comfortable recommendation
+4. verify at least one representative runtime when possible
+5. update or add related SEO records only after the data exists
+
+## Commercialization hooks
+
+The page architecture is ready for later integration of:
+
+- GPU and prebuilt-PC affiliate offers
+- cloud GPU providers
+- local AI installation services
+- downloadable configuration reports
+- workstation build guides
+- a public compatibility API
+
+Affiliate links are intentionally not hardcoded in the first implementation. Product inventory, geography, disclosure, tracking, and merchant selection should be configured before offers are shown.
+
+## Attribution
+
+This repository is based on the open-source [CanIRun.ai project](https://github.com/midudev/canirun.ai), originally created by midudev and released under the MIT License. The existing hardware detector, GGUF model catalog, compatibility calculations, and Astro foundation were retained and extended.
 
 ## License
 

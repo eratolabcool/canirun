@@ -1,0 +1,505 @@
+---
+import {
+  advisorModels,
+  hardwareProfiles,
+  categoryLabels,
+} from "@/data/advisor";
+
+interface Props {
+  initialModelSlug?: string;
+}
+
+const { initialModelSlug } = Astro.props;
+const initialModel = advisorModels.find((model) => model.slug === initialModelSlug) ?? advisorModels[0];
+---
+
+<section
+  class="hardware-decision-report mx-auto mb-10 w-full max-w-6xl px-4 sm:px-6"
+  data-hardware-decision-report
+  data-initial-model={initialModel.slug}
+  data-fixed-model={initialModelSlug ? "true" : "false"}
+  data-models={JSON.stringify(advisorModels)}
+  data-hardware-profiles={JSON.stringify(hardwareProfiles)}
+  aria-live="polite"
+>
+  <div class="rounded-xl border border-edge bg-surface-raised/70 p-5 shadow-sm sm:p-7">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">Hardware diagnosis</p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Your local AI capability report</h2>
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-secondary">
+          A plain-language diagnosis of what your machine does well, what limits it, and the most sensible next step.
+        </p>
+      </div>
+
+      <label class:list={["min-w-0", initialModelSlug ? "hidden" : "block"]}>
+        <span class="mb-2 block font-mono text-xs uppercase tracking-wide text-muted">Target workload</span>
+        <select data-target-model class="filter-select w-full min-w-[240px]">
+          {Object.entries(categoryLabels).map(([category, label]) => (
+            <optgroup label={label}>
+              {advisorModels.filter((model) => model.category === category).map((model) => (
+                <option value={model.slug} selected={model.slug === initialModel.slug}>{model.name}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </label>
+
+      {initialModelSlug && (
+        <div class="rounded-lg border border-accent/40 bg-accent/5 px-4 py-3">
+          <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Target workload</p>
+          <p class="mt-1 font-semibold text-primary">{initialModel.name}</p>
+          <p class="mt-1 text-xs text-secondary">{initialModel.testedPreset}</p>
+        </div>
+      )}
+    </div>
+
+    <div class="mt-6 rounded-lg border border-edge bg-surface p-4" data-detection-state>
+      <p class="font-mono text-sm text-muted">Detecting hardware and preparing your report…</p>
+    </div>
+
+    <div class="mt-6 hidden" data-report-content>
+      <section>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">P0-1 · Capability summary</p>
+            <h3 class="mt-2 text-xl font-semibold">The answer before the details</h3>
+          </div>
+          <span data-device-name class="rounded-full border border-edge bg-surface px-3 py-1.5 font-mono text-xs text-secondary"></span>
+        </div>
+
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <article class="rounded-lg border border-accent/50 bg-accent/5 p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-accent">Performance tier</p>
+            <p data-summary="tier" class="mt-2 text-xl font-semibold"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Best LLM size</p>
+            <p data-summary="llm-size" class="mt-2 text-lg font-semibold"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Recommended quantization</p>
+            <p data-summary="quant" class="mt-2 text-lg font-semibold"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Estimated LLM speed</p>
+            <p data-summary="speed" class="mt-2 text-lg font-semibold"></p>
+            <p data-summary="speed-confidence" class="mt-1 text-xs text-muted"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Image capability</p>
+            <p data-summary="image" class="mt-2 text-sm font-medium leading-6"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Video capability</p>
+            <p data-summary="video" class="mt-2 text-sm font-medium leading-6"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Main bottleneck</p>
+            <p data-summary="bottleneck" class="mt-2 text-sm font-medium leading-6"></p>
+          </article>
+          <article class="rounded-lg border border-edge bg-surface p-4">
+            <p class="font-mono text-[11px] uppercase tracking-wide text-muted">Best next step</p>
+            <p data-summary="upgrade" class="mt-2 text-sm font-medium leading-6"></p>
+          </article>
+        </div>
+      </section>
+
+      <div class="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <section class="rounded-lg border border-edge bg-surface p-5">
+          <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">P0-2 · Component gap analysis</p>
+          <div class="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h3 class="text-xl font-semibold">Your hardware vs. <span data-target-name></span></h3>
+            <span data-overall-fit class="rounded-full px-2.5 py-1 font-mono text-xs"></span>
+          </div>
+
+          <div class="mt-5 divide-y divide-edge/70 rounded-lg border border-edge">
+            {[
+              ["runtime", "Runtime / backend"],
+              ["memory", "Model memory"],
+              ["ram", "System RAM"],
+              ["bandwidth", "Memory bandwidth"],
+              ["storage", "Storage planning"],
+              ["result", "Expected result"],
+            ].map(([key, label]) => (
+              <div class="grid grid-cols-[1fr_auto] gap-4 px-4 py-3" data-gap={key}>
+                <div>
+                  <p class="text-sm font-medium text-primary">{label}</p>
+                  <p data-gap-value class="mt-1 text-xs leading-5 text-secondary"></p>
+                </div>
+                <span data-gap-status class="self-center rounded-full px-2 py-1 font-mono text-[10px] uppercase tracking-wide"></span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="rounded-lg border border-edge bg-surface p-5">
+          <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">P0-3 · Actionable upgrade ladder</p>
+          <h3 class="mt-2 text-xl font-semibold">Keep, upgrade, go pro, or rent</h3>
+          <div class="mt-5 grid gap-3 sm:grid-cols-2">
+            {[
+              ["keep", "Keep current PC"],
+              ["cheapest", "Cheapest workable"],
+              ["value", "Best-value upgrade"],
+              ["professional", "Professional upgrade"],
+              ["cloud", "Cloud alternative"],
+            ].map(([key, label], index) => (
+              <article class:list={["rounded-lg border p-4", index === 2 ? "border-accent/60 bg-accent/5" : "border-edge bg-surface-raised"]} data-upgrade={key}>
+                <p class="font-mono text-[10px] uppercase tracking-wide text-muted">{label}</p>
+                <h4 data-upgrade-title class="mt-2 font-semibold text-primary"></h4>
+                <p data-upgrade-description class="mt-2 text-xs leading-5 text-secondary"></p>
+                <a data-upgrade-link class="mt-3 hidden font-mono text-xs text-accent hover:underline">Open hardware guide →</a>
+              </article>
+            ))}
+          </div>
+          <p class="mt-4 text-xs leading-5 text-muted">Recommendations use memory fit, system RAM, workload assumptions, and cost tier. They are planning guidance, not benchmark guarantees.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import {
+    detectHardware,
+    applyOverrides,
+    getDisplayName,
+  } from "@/lib/hardware";
+  import type { HardwareInfo } from "@/lib/hardware";
+
+  interface AdvisorModel {
+    slug: string;
+    name: string;
+    category: "llm" | "image" | "video" | "audio" | "workflow";
+    minVramGb: number;
+    recommendedVramGb: number;
+    minRamGb: number;
+    recommendedRamGb: number;
+    storageGb: number;
+    testedPreset: string;
+  }
+
+  interface HardwareProfile {
+    slug: string;
+    name: string;
+    kind: "gpu" | "mac" | "cloud";
+    vramGb: number;
+    ramGb: number;
+    unifiedMemory: boolean;
+    priceTier: number;
+    role: string;
+    summary: string;
+  }
+
+  type Fit = "recommended" | "minimum" | "not-recommended";
+  type GapStatus = "pass" | "limited" | "fail" | "info";
+
+  const bandwidthTargets: Record<AdvisorModel["category"], number> = {
+    llm: 250,
+    image: 300,
+    video: 500,
+    audio: 100,
+    workflow: 400,
+  };
+
+  function modelMemory(hw: HardwareInfo): number {
+    if (hw.isAppleSilicon) {
+      return Math.floor((hw.totalUsableRAM ?? hw.ramGB ?? 0) * 0.75);
+    }
+    return hw.ramGB ?? hw.estimatedVRAM ?? 0;
+  }
+
+  function systemMemory(hw: HardwareInfo): number {
+    if (hw.isAppleSilicon) return hw.totalUsableRAM ?? hw.ramGB ?? 0;
+    return hw.systemRAM ?? (hw.deviceMemoryRaw && hw.deviceMemoryRaw >= 8 ? 16 : hw.deviceMemoryRaw) ?? 16;
+  }
+
+  function profileMemory(profile: HardwareProfile): number {
+    return profile.unifiedMemory ? Math.floor(profile.ramGb * 0.75) : profile.vramGb;
+  }
+
+  function fitFor(model: AdvisorModel, available: number, ram: number): Fit {
+    if (available >= model.recommendedVramGb && ram >= model.recommendedRamGb) return "recommended";
+    if (available >= model.minVramGb && ram >= model.minRamGb) return "minimum";
+    return "not-recommended";
+  }
+
+  function profileFit(model: AdvisorModel, profile: HardwareProfile): Fit {
+    return fitFor(model, profileMemory(profile), profile.ramGb);
+  }
+
+  function setText(root: HTMLElement, selector: string, value: string) {
+    const element = root.querySelector<HTMLElement>(selector);
+    if (element) element.textContent = value;
+  }
+
+  function setStatus(element: HTMLElement | null, status: GapStatus, label: string) {
+    if (!element) return;
+    const classes: Record<GapStatus, string> = {
+      pass: "bg-can-run/15 text-can-run",
+      limited: "bg-maybe/15 text-maybe",
+      fail: "bg-cannot-run/15 text-cannot-run",
+      info: "bg-surface-raised text-muted",
+    };
+    element.className = `self-center rounded-full px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${classes[status]}`;
+    element.textContent = label;
+  }
+
+  function updateGap(root: HTMLElement, key: string, value: string, status: GapStatus, label: string) {
+    const row = root.querySelector<HTMLElement>(`[data-gap="${key}"]`);
+    if (!row) return;
+    const valueElement = row.querySelector<HTMLElement>("[data-gap-value]");
+    if (valueElement) valueElement.textContent = value;
+    setStatus(row.querySelector<HTMLElement>("[data-gap-status]"), status, label);
+  }
+
+  function performanceTier(hw: HardwareInfo, available: number): string {
+    if (hw.isMobile) return "Mobile / experimental";
+    const bandwidth = hw.memoryBandwidth ?? 0;
+    if (available >= 32 && bandwidth >= 700) return "Professional local AI";
+    if (available >= 24) return "Power-user workstation";
+    if (available >= 16) return "AI creator";
+    if (available >= 10) return "Mainstream local AI";
+    if (available >= 6) return "Local AI starter";
+    return "Entry / CPU-assisted";
+  }
+
+  function bestLlmSize(available: number): string {
+    if (available >= 48) return "32B–70B quantized";
+    if (available >= 24) return "20B–32B quantized";
+    if (available >= 16) return "14B–20B quantized";
+    if (available >= 10) return "7B–14B quantized";
+    if (available >= 6) return "3B–8B quantized";
+    return "1B–3B compact models";
+  }
+
+  function recommendedQuant(available: number): string {
+    if (available >= 32) return "Q6_K or Q8_0";
+    if (available >= 24) return "Q5_K_M or Q6_K";
+    if (available >= 12) return "Q4_K_M or Q5_K_M";
+    if (available >= 6) return "Q4_K_M";
+    return "Q2_K or Q3_K_M";
+  }
+
+  function categoryCapability(models: AdvisorModel[], category: AdvisorModel["category"], available: number, ram: number): string {
+    const matches = models
+      .filter((model) => model.category === category)
+      .map((model) => ({ model, fit: fitFor(model, available, ram) }))
+      .filter((item) => item.fit !== "not-recommended")
+      .sort((a, b) => b.model.recommendedVramGb - a.model.recommendedVramGb);
+    const recommended = matches.find((item) => item.fit === "recommended");
+    if (recommended) return `${recommended.model.name} recommended`;
+    const minimum = matches[0];
+    if (minimum) return `${minimum.model.name} with offload or reduced settings`;
+    return "Use a cloud GPU or a larger-memory system";
+  }
+
+  function domSpeedRange(): { value: string; confidence: string } | null {
+    const values = Array.from(document.querySelectorAll<HTMLElement>("[data-tok-speed][data-tok]"))
+      .map((element) => Number(element.dataset.tok))
+      .filter((value) => Number.isFinite(value) && value > 0)
+      .sort((a, b) => a - b);
+    if (values.length < 3) return null;
+    const low = values[Math.floor(values.length * 0.25)];
+    const high = values[Math.min(values.length - 1, Math.floor(values.length * 0.75))];
+    return { value: `${low}–${high} tok/s`, confidence: "Medium confidence · current catalog estimates" };
+  }
+
+  function estimatedLlmSpeed(model: AdvisorModel, hw: HardwareInfo): { value: string; confidence: string } {
+    const fromDom = domSpeedRange();
+    if (fromDom) return fromDom;
+    if (model.category !== "llm") return { value: "Not applicable", confidence: "This workload is not token-based" };
+    const parameterMatch = model.name.match(/(\d+(?:\.\d+)?)B/i);
+    const params = parameterMatch ? Number(parameterMatch[1]) : 8;
+    const bandwidth = hw.memoryBandwidth ?? (hw.isAppleSilicon ? 250 : 200);
+    const midpoint = Math.max(1, Math.round(bandwidth / Math.max(1, params * 2.2)));
+    const low = Math.max(1, Math.round(midpoint * 0.75));
+    const high = Math.max(low + 1, Math.round(midpoint * 1.25));
+    return { value: `${low}–${high} tok/s`, confidence: "Low–medium confidence · varies by runtime and context" };
+  }
+
+  function mainBottleneck(model: AdvisorModel, hw: HardwareInfo, available: number, ram: number): string {
+    if (available < model.minVramGb) return `Model memory: ${available} GB available vs. ${model.minVramGb} GB minimum`;
+    if (ram < model.minRamGb) return `System RAM: ${ram} GB available vs. ${model.minRamGb} GB minimum`;
+    const bandwidth = hw.memoryBandwidth ?? 0;
+    if (bandwidth > 0 && bandwidth < bandwidthTargets[model.category]) return `Memory bandwidth limits speed more than capacity`;
+    if (!hw.webgpu) return "Browser GPU access is limited; use a native runtime";
+    if (fitFor(model, available, ram) === "minimum") return "Limited headroom for larger contexts, resolution, or batch size";
+    return "No major blocker for the listed preset";
+  }
+
+  function findProfiles(model: AdvisorModel, profiles: HardwareProfile[], currentAvailable: number, currentFit: Fit) {
+    const ranked = profiles
+      .map((profile) => ({ profile, fit: profileFit(model, profile) }))
+      .filter((item) => item.fit !== "not-recommended")
+      .sort((a, b) => a.profile.priceTier - b.profile.priceTier || profileMemory(a.profile) - profileMemory(b.profile));
+    const local = ranked.filter((item) => item.profile.kind !== "cloud");
+    const better = local.filter((item) => profileMemory(item.profile) > currentAvailable || currentFit === "not-recommended");
+    const recommended = local.filter((item) => item.fit === "recommended");
+    const cheapest = better[0] ?? local[0];
+    const value = recommended.find((item) => item.profile.priceTier <= 4) ?? recommended[0] ?? cheapest;
+    const professional = [...recommended].sort((a, b) => profileMemory(b.profile) - profileMemory(a.profile))[0] ?? [...local].sort((a, b) => profileMemory(b.profile) - profileMemory(a.profile))[0];
+    const cloud = ranked.find((item) => item.profile.kind === "cloud") ?? profiles.map((profile) => ({ profile, fit: profileFit(model, profile) })).find((item) => item.profile.kind === "cloud");
+    return { cheapest, value, professional, cloud };
+  }
+
+  function updateUpgradeCard(root: HTMLElement, key: string, title: string, description: string, slug?: string) {
+    const card = root.querySelector<HTMLElement>(`[data-upgrade="${key}"]`);
+    if (!card) return;
+    const titleElement = card.querySelector<HTMLElement>("[data-upgrade-title]");
+    const descriptionElement = card.querySelector<HTMLElement>("[data-upgrade-description]");
+    const link = card.querySelector<HTMLAnchorElement>("[data-upgrade-link]");
+    if (titleElement) titleElement.textContent = title;
+    if (descriptionElement) descriptionElement.textContent = description;
+    if (link) {
+      if (slug) {
+        link.href = `/advisor/hardware/${slug}`;
+        link.classList.remove("hidden");
+      } else {
+        link.classList.add("hidden");
+      }
+    }
+  }
+
+  function render(root: HTMLElement, hw: HardwareInfo, models: AdvisorModel[], profiles: HardwareProfile[]) {
+    const select = root.querySelector<HTMLSelectElement>("[data-target-model]");
+    const selectedSlug = select?.value || root.dataset.initialModel || models[0]?.slug;
+    const model = models.find((item) => item.slug === selectedSlug) ?? models[0];
+    if (!model) return;
+
+    const available = modelMemory(hw);
+    const ram = systemMemory(hw);
+    const bandwidth = hw.memoryBandwidth ?? 0;
+    const fit = fitFor(model, available, ram);
+    const speed = estimatedLlmSpeed(model, hw);
+    const profileChoices = findProfiles(model, profiles, available, fit);
+
+    setText(root, "[data-device-name]", getDisplayName(hw));
+    setText(root, '[data-summary="tier"]', performanceTier(hw, available));
+    setText(root, '[data-summary="llm-size"]', bestLlmSize(available));
+    setText(root, '[data-summary="quant"]', recommendedQuant(available));
+    setText(root, '[data-summary="speed"]', speed.value);
+    setText(root, '[data-summary="speed-confidence"]', speed.confidence);
+    setText(root, '[data-summary="image"]', categoryCapability(models, "image", available, ram));
+    setText(root, '[data-summary="video"]', categoryCapability(models, "video", available, ram));
+    setText(root, '[data-summary="bottleneck"]', mainBottleneck(model, hw, available, ram));
+    setText(root, '[data-summary="upgrade"]', profileChoices.value ? `${profileChoices.value.profile.name}: ${profileChoices.value.profile.role}` : "Keep the current machine and use cloud GPU for heavier jobs");
+    setText(root, "[data-target-name]", model.name);
+
+    const overall = root.querySelector<HTMLElement>("[data-overall-fit]");
+    if (overall) {
+      const labels: Record<Fit, string> = {
+        recommended: "Recommended",
+        minimum: "Runs with compromises",
+        "not-recommended": "Not recommended",
+      };
+      const classes: Record<Fit, string> = {
+        recommended: "bg-can-run/15 text-can-run",
+        minimum: "bg-maybe/15 text-maybe",
+        "not-recommended": "bg-cannot-run/15 text-cannot-run",
+      };
+      overall.textContent = labels[fit];
+      overall.className = `rounded-full px-2.5 py-1 font-mono text-xs ${classes[fit]}`;
+    }
+
+    const runtimeName = hw.isAppleSilicon ? "Metal / MLX, Ollama, or llama.cpp" : hw.webgpu ? "WebGPU detected; native CUDA/ROCm runtime still preferred" : "Use a native local runtime; browser WebGPU was not detected";
+    updateGap(root, "runtime", runtimeName, hw.webgpu || !hw.isMobile ? "pass" : "limited", hw.webgpu ? "Supported" : "Native app");
+
+    const memoryStatus: GapStatus = available >= model.recommendedVramGb ? "pass" : available >= model.minVramGb ? "limited" : "fail";
+    updateGap(root, "memory", `${available} GB usable model memory · ${model.minVramGb} GB minimum · ${model.recommendedVramGb} GB recommended`, memoryStatus, memoryStatus === "pass" ? "Pass" : memoryStatus === "limited" ? "Tight" : "Fail");
+
+    const ramStatus: GapStatus = ram >= model.recommendedRamGb ? "pass" : ram >= model.minRamGb ? "limited" : "fail";
+    updateGap(root, "ram", `${ram} GB available · ${model.minRamGb} GB minimum · ${model.recommendedRamGb} GB recommended`, ramStatus, ramStatus === "pass" ? "Pass" : ramStatus === "limited" ? "Tight" : "Fail");
+
+    const bandwidthTarget = bandwidthTargets[model.category];
+    const bandwidthStatus: GapStatus = bandwidth === 0 ? "info" : bandwidth >= bandwidthTarget ? "pass" : bandwidth >= bandwidthTarget * 0.55 ? "limited" : "fail";
+    updateGap(root, "bandwidth", bandwidth ? `~${bandwidth} GB/s detected · approximately ${bandwidthTarget} GB/s target for this workload class` : `Not detected · capacity fit is still available, but speed confidence is lower`, bandwidthStatus, bandwidthStatus === "pass" ? "Pass" : bandwidthStatus === "limited" ? "Limited" : bandwidthStatus === "fail" ? "Slow" : "Unknown");
+
+    updateGap(root, "storage", `Reserve at least ${model.storageGb} GB of SSD space for the listed preset and runtime files`, "info", "Check");
+
+    const resultText = fit === "recommended"
+      ? `Comfortable for ${model.testedPreset}, with normal headroom for desktop overhead.`
+      : fit === "minimum"
+        ? `Should load with compromises. Expect offload, shorter context, lower resolution, or smaller batches.`
+        : `Do not plan around this setup. Use a larger-memory local system or a cloud GPU.`;
+    updateGap(root, "result", resultText, fit === "recommended" ? "pass" : fit === "minimum" ? "limited" : "fail", fit === "recommended" ? "Good" : fit === "minimum" ? "Compromise" : "Blocked");
+
+    updateUpgradeCard(
+      root,
+      "keep",
+      getDisplayName(hw),
+      fit === "recommended" ? `Keep it. This machine is already a comfortable match for ${model.name}.` : fit === "minimum" ? `Keep it for occasional use with offload or reduced settings.` : `Keep it for lighter models, but not as the primary machine for this workload.`,
+    );
+
+    if (profileChoices.cheapest) updateUpgradeCard(root, "cheapest", profileChoices.cheapest.profile.name, `${profileChoices.cheapest.fit === "recommended" ? "Comfortable" : "Minimum"} fit · ${profileChoices.cheapest.profile.summary}`, profileChoices.cheapest.profile.slug);
+    else updateUpgradeCard(root, "cheapest", "No local preset yet", "Use the cloud option until a verified lower-cost configuration is added.");
+
+    if (profileChoices.value) updateUpgradeCard(root, "value", profileChoices.value.profile.name, `${profileChoices.value.profile.role} · ${profileChoices.value.profile.summary}`, profileChoices.value.profile.slug);
+    else updateUpgradeCard(root, "value", "Cloud-first workflow", "Avoid buying hardware until this workload becomes frequent.");
+
+    if (profileChoices.professional) updateUpgradeCard(root, "professional", profileChoices.professional.profile.name, `${profileChoices.professional.profile.role} · more headroom for larger contexts, resolution, and batches.`, profileChoices.professional.profile.slug);
+    else updateUpgradeCard(root, "professional", "48 GB+ professional GPU", "Use a workstation-class GPU for this workload.");
+
+    if (profileChoices.cloud) updateUpgradeCard(root, "cloud", profileChoices.cloud.profile.name, `${profileChoices.cloud.profile.role} · ${profileChoices.cloud.profile.summary}`, profileChoices.cloud.profile.slug);
+    else updateUpgradeCard(root, "cloud", "Cloud GPU", "Rent a larger GPU when the workload is occasional.");
+  }
+
+  async function initializeReport(root: HTMLElement) {
+    if (root.dataset.initialized === "true") return;
+    root.dataset.initialized = "true";
+
+    const models = JSON.parse(root.dataset.models || "[]") as AdvisorModel[];
+    const profiles = JSON.parse(root.dataset.hardwareProfiles || "[]") as HardwareProfile[];
+    const state = root.querySelector<HTMLElement>("[data-detection-state]");
+    const content = root.querySelector<HTMLElement>("[data-report-content]");
+
+    try {
+      const detected = await detectHardware();
+      const refresh = () => {
+        const current = applyOverrides(detected);
+        render(root, current, models, profiles);
+      };
+
+      refresh();
+      state?.classList.add("hidden");
+      content?.classList.remove("hidden");
+
+      root.querySelector<HTMLSelectElement>("[data-target-model]")?.addEventListener("change", refresh);
+      document.addEventListener("change", (event) => {
+        const target = event.target as HTMLElement | null;
+        if (target?.matches("#hw-device-select, #hw-ram-select, #hw-sysram-select, #hw-bw-select")) {
+          window.setTimeout(refresh, 50);
+        }
+      });
+
+      const summaryBar = document.querySelector("#summary-bar");
+      if (summaryBar) {
+        const observer = new MutationObserver(() => window.setTimeout(refresh, 20));
+        observer.observe(summaryBar, { attributes: true, childList: true, subtree: true });
+      }
+
+      window.setTimeout(refresh, 800);
+    } catch (error) {
+      if (state) state.innerHTML = `<p class="font-mono text-sm text-cannot-run">Hardware detection failed. Select a hardware profile manually in the compatibility panel and reload the report.</p>`;
+      console.error("Hardware decision report failed", error);
+    }
+  }
+
+  function mountAndInitialize() {
+    document.querySelectorAll<HTMLElement>("[data-hardware-decision-report]").forEach((root) => {
+      const hardwarePanel = document.querySelector<HTMLElement>("#hw-panel");
+      if (hardwarePanel && root.parentElement?.id !== "results") {
+        hardwarePanel.insertAdjacentElement("afterend", root);
+        root.classList.remove("px-4", "sm:px-6");
+      }
+      void initializeReport(root);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountAndInitialize, { once: true });
+  } else {
+    mountAndInitialize();
+  }
+  document.addEventListener("astro:page-load", mountAndInitialize);
+</script>

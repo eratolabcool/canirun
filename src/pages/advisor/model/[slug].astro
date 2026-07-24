@@ -1,0 +1,156 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import NavHeader from "@/components/NavHeader.astro";
+import Footer from "@/components/Footer.astro";
+import HardwareDecisionReport from "@/components/HardwareDecisionReport.astro";
+import {
+  advisorModels,
+  hardwareForModel,
+  fitLabel,
+  effectiveModelMemory,
+  categoryLabels,
+  advisorDisclaimer,
+  type AdvisorModel,
+} from "@/data/advisor";
+import { siteConfig } from "@/config/site";
+
+export function getStaticPaths() {
+  return advisorModels.map((model) => ({ params: { slug: model.slug }, props: { model } }));
+}
+
+interface Props { model: AdvisorModel }
+const { model } = Astro.props;
+const recommendations = hardwareForModel(model);
+const minimum = recommendations.find((item) => item.fit === "minimum") ?? recommendations[0];
+const comfortable = recommendations.find((item) => item.fit === "recommended") ?? recommendations.at(-1);
+const title = `Best PC and GPU for ${model.name} — ${siteConfig.shortName}`;
+const description = `Minimum and recommended hardware for ${model.name}: ${model.minVramGb} GB minimum VRAM, ${model.recommendedVramGb} GB recommended VRAM, ${model.recommendedRamGb} GB RAM, and ${model.storageGb} GB storage.`;
+---
+
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      headline: `Hardware requirements for ${model.name}`,
+      description,
+      mainEntityOfPage: Astro.url.href,
+      about: { "@type": "SoftwareApplication", name: model.name, applicationCategory: categoryLabels[model.category] },
+    })}></script>
+  </Fragment>
+
+  <NavHeader />
+  <main class="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6">
+    <nav class="font-mono text-xs text-muted" aria-label="Breadcrumb">
+      <a href="/advisor" class="hover:text-accent">Hardware advisor</a>
+      <span class="mx-2">/</span>
+      <span>{model.name}</span>
+    </nav>
+
+    <header class="mt-8">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="rounded-full border border-edge px-3 py-1 font-mono text-xs uppercase tracking-wide text-accent">{categoryLabels[model.category]}</span>
+        <span class="font-mono text-xs text-muted">{model.provider}</span>
+      </div>
+      <h1 class="mt-5 text-4xl font-semibold tracking-tight sm:text-6xl">Best hardware for {model.name}</h1>
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-secondary">{model.summary}</p>
+    </header>
+
+    <section class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-muted">Minimum VRAM</p>
+        <p class="mt-2 text-3xl font-semibold text-primary">{model.minVramGb} GB</p>
+      </div>
+      <div class="rounded-lg border border-accent/60 bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-accent">Recommended VRAM</p>
+        <p class="mt-2 text-3xl font-semibold text-primary">{model.recommendedVramGb} GB</p>
+      </div>
+      <div class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-muted">Recommended RAM</p>
+        <p class="mt-2 text-3xl font-semibold text-primary">{model.recommendedRamGb} GB</p>
+      </div>
+      <div class="rounded-lg border border-edge bg-surface-raised p-5">
+        <p class="font-mono text-xs uppercase text-muted">Storage budget</p>
+        <p class="mt-2 text-3xl font-semibold text-primary">{model.storageGb} GB</p>
+      </div>
+    </section>
+
+    <div class="-mx-4 mt-10 sm:-mx-6">
+      <HardwareDecisionReport initialModelSlug={model.slug} />
+    </div>
+
+    <section class="mt-12 grid gap-5 md:grid-cols-2">
+      <article class="rounded-lg border border-edge bg-surface-raised p-6">
+        <p class="font-mono text-xs uppercase tracking-wider text-muted">Cheapest workable option</p>
+        {minimum ? (
+          <>
+            <h2 class="mt-3 text-2xl font-semibold">{minimum.hardware.name}</h2>
+            <p class="mt-3 text-sm leading-6 text-secondary">{minimum.hardware.summary}</p>
+            <a href={`/advisor/hardware/${minimum.hardware.slug}`} class="mt-5 inline-flex font-mono text-sm text-accent hover:underline">View compatible models →</a>
+          </>
+        ) : <p class="mt-3 text-secondary">Use a 48 GB cloud GPU or larger professional system.</p>}
+      </article>
+      <article class="rounded-lg border border-accent/60 bg-surface-raised p-6">
+        <p class="font-mono text-xs uppercase tracking-wider text-accent">Comfortable recommendation</p>
+        {comfortable ? (
+          <>
+            <h2 class="mt-3 text-2xl font-semibold">{comfortable.hardware.name}</h2>
+            <p class="mt-3 text-sm leading-6 text-secondary">{comfortable.hardware.summary}</p>
+            <a href={`/advisor/hardware/${comfortable.hardware.slug}`} class="mt-5 inline-flex font-mono text-sm text-accent hover:underline">Open hardware guide →</a>
+          </>
+        ) : <p class="mt-3 text-secondary">No comfortable preset has been added yet.</p>}
+      </article>
+    </section>
+
+    <section class="mt-14">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">Buy, keep, or rent</p>
+          <h2 class="mt-2 text-3xl font-semibold">Hardware comparison</h2>
+        </div>
+        <p class="font-mono text-xs text-muted">Preset: {model.testedPreset}</p>
+      </div>
+
+      <div class="mt-6 overflow-x-auto rounded-lg border border-edge">
+        <table class="w-full min-w-[720px] border-collapse text-left">
+          <thead class="bg-surface-raised font-mono text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-4 py-3">Hardware</th>
+              <th class="px-4 py-3">Usable model memory</th>
+              <th class="px-4 py-3">System RAM</th>
+              <th class="px-4 py-3">Verdict</th>
+              <th class="px-4 py-3">Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recommendations.map(({ hardware, fit }) => (
+              <tr class="border-t border-edge/70 text-sm">
+                <td class="px-4 py-4"><a href={`/advisor/hardware/${hardware.slug}`} class="font-semibold text-primary hover:text-accent">{hardware.name}</a></td>
+                <td class="px-4 py-4 font-mono text-secondary">{effectiveModelMemory(hardware)} GB</td>
+                <td class="px-4 py-4 font-mono text-secondary">{hardware.ramGb} GB</td>
+                <td class="px-4 py-4"><span class:list={["rounded-full px-2.5 py-1 font-mono text-xs", fit === "recommended" ? "bg-accent/15 text-accent" : "bg-surface text-secondary"]}>{fitLabel(fit)}</span></td>
+                <td class="px-4 py-4 text-secondary">{hardware.role}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="mt-14 grid gap-6 md:grid-cols-[1.3fr_0.7fr]">
+      <article class="rounded-lg border border-edge bg-surface-raised p-6">
+        <h2 class="text-2xl font-semibold">What changes the result?</h2>
+        <ul class="mt-4 space-y-3 text-sm leading-6 text-secondary">
+          {model.notes.map((note) => <li class="flex gap-3"><span class="text-accent">•</span><span>{note}</span></li>)}
+          <li class="flex gap-3"><span class="text-accent">•</span><span>{advisorDisclaimer}</span></li>
+        </ul>
+      </article>
+      <aside class="rounded-lg border border-edge bg-surface-raised p-6">
+        <h2 class="text-xl font-semibold">Primary model source</h2>
+        <p class="mt-3 text-sm leading-6 text-secondary">Confirm license, supported runtimes, and the newest model files before downloading.</p>
+        <a href={model.sourceUrl} target="_blank" rel="noopener noreferrer" class="mt-5 inline-flex font-mono text-sm text-accent hover:underline">Open model card ↗</a>
+      </aside>
+    </section>
+  </main>
+  <Footer />
+</Layout>

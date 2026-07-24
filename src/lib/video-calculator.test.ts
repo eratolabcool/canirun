@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateVideoFit, chooseRecommendedPrecision, estimatePeakVramGb } from "./video-calculator";
-import { calculatorGpus, precisionMultipliers, resolutionPresets, videoModelVariants } from "@/data/video-models";
+import { calculatorGpus, precisionMultipliers, resolutionPresets, videoModelVariants } from "../data/video-models";
 
 const model = videoModelVariants.find((item) => item.slug === "wan-2-1-1-3b")!;
 const gpu3060 = calculatorGpus.find((item) => item.slug === "rtx-3060-12gb")!;

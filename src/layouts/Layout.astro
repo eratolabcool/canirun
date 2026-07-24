@@ -53,6 +53,23 @@ const ogImageURL = new URL(image, Astro.site);
       })();
     </script>
 
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-DRNFT7XBJP"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DRNFT7XBJP');
+
+      document.addEventListener('astro:after-swap', function () {
+        gtag('config', 'G-DRNFT7XBJP', {
+          page_path: window.location.pathname + window.location.search,
+          page_location: window.location.href,
+          page_title: document.title,
+        });
+      });
+    </script>
+
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalURL.href} />
     <meta property="og:title" content={title} />

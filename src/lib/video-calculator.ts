@@ -90,6 +90,14 @@ const taskMultipliers: Record<VideoTask, number> = {
   v2v: 1.18,
 };
 
+const defaultPrecisionMultipliers: Record<VideoPrecision, number> = {
+  bf16: 1,
+  fp16: 0.96,
+  fp8: 0.68,
+  int8: 0.62,
+  gguf: 0.56,
+};
+
 const qualityOrder: VideoPrecision[] = ["bf16", "fp16", "fp8", "int8", "gguf"];
 
 function isNativeRuntimeBlocked(model: VideoCalculatorModel, gpu: VideoCalculatorGpu): boolean {
@@ -105,7 +113,7 @@ export function estimatePeakVramGb(
   offload: boolean,
   task: VideoTask = "t2v",
   batchSize = 1,
-  precisionMultipliers: Record<VideoPrecision, number>,
+  precisionMultipliers: Record<VideoPrecision, number> = defaultPrecisionMultipliers,
 ): number {
   const pixelRatio = (resolution.width * resolution.height) / (model.baselineWidth * model.baselineHeight);
   const frameRatio = Math.max(0.2, frames / model.baselineFrames);

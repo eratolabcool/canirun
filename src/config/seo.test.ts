@@ -12,12 +12,18 @@ describe("Can I Run SEO strategy", () => {
       .toBe("https://www.canirun.app/ai-video");
   });
 
-  it("keeps the keyword tiers at their declared word counts", () => {
-    expect(canIRunKeywordTiers.oneWord.every((keyword) => wordCount(keyword) === 1)).toBe(true);
-    expect(canIRunKeywordTiers.twoWords.every((keyword) => wordCount(keyword) === 2)).toBe(true);
-    expect(canIRunKeywordTiers.threeWords.every((keyword) => wordCount(keyword) === 3)).toBe(true);
-    expect(canIRunKeywordTiers.fourWords.every((keyword) => wordCount(keyword) === 4)).toBe(true);
-    expect(canIRunKeywordTiers.fiveWords.every((keyword) => wordCount(keyword) === 5)).toBe(true);
+  it("keeps the requested search-term tiers at their declared word counts", () => {
+    expect(canIRunKeywordTiers.oneWord).toEqual(["compatibility", "hardware", "GPU", "VRAM", "local"]);
+    expect(canIRunKeywordTiers.twoWords).toEqual(["AI compatibility", "local AI", "GPU requirements"]);
+    expect(canIRunKeywordTiers.threeWords).toEqual(["Can I Run", "AI hardware checker"]);
+    expect(canIRunKeywordTiers.fourWords).toEqual(["Can I Run AI", "Can My GPU Run"]);
+    expect(canIRunKeywordTiers.fiveWords).toEqual(["Can I Run AI Locally", "Can I Run AI Video", "Can I Run This Model"]);
+
+    expect(canIRunKeywordTiers.oneWord.every((term) => wordCount(term) === 1)).toBe(true);
+    expect(canIRunKeywordTiers.twoWords.every((term) => wordCount(term) === 2)).toBe(true);
+    expect(canIRunKeywordTiers.threeWords.every((term) => wordCount(term) === 3)).toBe(true);
+    expect(canIRunKeywordTiers.fourWords.every((term) => wordCount(term) === 4)).toBe(true);
+    expect(canIRunKeywordTiers.fiveWords.every((term) => wordCount(term) === 5)).toBe(true);
   });
 
   it("builds Can I Run titles for the main search-intent routes", () => {
@@ -29,7 +35,7 @@ describe("Can I Run SEO strategy", () => {
     expect(resolveSeo("/docs", "Legacy", "Legacy").title).toContain("Can I Run AI?");
   });
 
-  it("builds model and hardware long-tail metadata", () => {
+  it("builds model and hardware long-tail search terms", () => {
     const modelSeo = resolveSeo(
       "/advisor/model/qwen",
       "Best PC and GPU for Qwen 3 — CanIRun Local",
@@ -37,7 +43,7 @@ describe("Can I Run SEO strategy", () => {
     );
     expect(modelSeo.title).toContain("Can I Run Qwen 3 Locally?");
     expect(modelSeo.description).toContain("Can I Run Qwen 3 locally?");
-    expect(modelSeo.keywords).toContain("Can I Run Qwen 3");
+    expect(modelSeo.searchTerms).toContain("Can I Run Qwen 3");
 
     const hardwareSeo = resolveSeo(
       "/advisor/hardware/rtx-4090",
@@ -49,7 +55,7 @@ describe("Can I Run SEO strategy", () => {
     expect(hardwareSeo.description).not.toContain("AI on AI on");
   });
 
-  it("does not force commercial keywords onto legal pages", () => {
+  it("does not force commercial search terms onto legal pages", () => {
     const legalSeo = resolveSeo("/privacy", "Privacy Policy — CanIRun.ai", "Read the privacy policy.");
     expect(legalSeo.title).toBe("Privacy Policy — CanIRun");
     expect(legalSeo.description).toBe("Read the privacy policy.");

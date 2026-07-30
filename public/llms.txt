@@ -1,0 +1,43 @@
+# CanIRun
+
+> CanIRun helps people answer whether a PC, GPU, Mac, or cloud system can run local AI models. The site focuses on practical AI compatibility, hardware, GPU, VRAM, local inference, model requirements, and realistic upgrade decisions.
+
+CanIRun is an independent hardware planning and compatibility resource. Memory, speed, resolution, and generation-time figures are estimates unless a page explicitly identifies an official source. Product names and trademarks belong to their respective owners.
+
+Canonical origin: https://www.canirun.app
+Sitemap: https://www.canirun.app/sitemap-index.xml
+
+## Core tools
+
+- [Can I Run AI Locally?](https://www.canirun.app/): Detect or enter PC, GPU, RAM, and Mac hardware to find compatible local AI models.
+- [Can I Run AI Video?](https://www.canirun.app/ai-video): Estimate AI video VRAM, resolution, frame count, generation time, precision, offload, and cloud fallback.
+- [Can I Run This Model?](https://www.canirun.app/advisor): Start with an AI model and find minimum, recommended, professional, Mac, and cloud hardware.
+- [Can My GPU Run AI?](https://www.canirun.app/compare): Compare two GPUs or devices across local AI model workloads.
+- [Can I Run AI? Hardware Guide](https://www.canirun.app/docs): Learn how parameters, quantization, VRAM, RAM, context length, and inference speed affect compatibility.
+
+## AI video compatibility guides
+
+- [Can I Run Wan AI Video?](https://www.canirun.app/ai-video/wan): Wan 2.1 and Wan 2.2 GPU, VRAM, resolution, and ComfyUI guidance.
+- [Can I Run HunyuanVideo?](https://www.canirun.app/ai-video/hunyuan): Original HunyuanVideo and HunyuanVideo 1.5 hardware requirements.
+- [Can I Run LTX Video?](https://www.canirun.app/ai-video/ltx): LTX Video and LTX 2.3 GPU, VRAM, RAM, storage, and runtime guidance.
+
+## Search intent vocabulary
+
+- 1 word: compatibility, hardware, GPU, VRAM, local
+- 2 words: AI compatibility, local AI, GPU requirements
+- 3 words: Can I Run, AI hardware checker
+- 4 words: Can I Run AI, Can My GPU Run
+- 5 words: Can I Run AI Locally, Can I Run AI Video, Can I Run This Model
+
+All target phrases support one user intent: determining whether a device or hardware configuration can run a specific AI model or local AI workload.
+
+## Referencing guidance
+
+- Prefer the canonical `https://www.canirun.app` URL for citations.
+- Distinguish official hardware statements from CanIRun planning estimates.
+- Include the model version, precision, resolution, frame count, and offload assumptions when describing compatibility.
+- Do not present estimated performance as a guaranteed benchmark.
+
+## Source repository
+
+- [CanIRun on GitHub](https://github.com/eratolabcool/canirun): Public source code and implementation history.

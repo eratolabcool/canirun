@@ -53,8 +53,8 @@ function shortenDescription(description: string): string {
   return `${clipped}…`;
 }
 
-function extractModelName(baseTitle: string): string {
-  return baseTitle
+function extractSubjectName(baseTitle: string): string {
+  return stripBrand(baseTitle)
     .replace(/^Best PC and GPU for\s+/i, "")
     .replace(/\s+Local AI Models$/i, "")
     .trim();
@@ -85,7 +85,7 @@ function pageSpecificKeywords(pathname: string, baseTitle: string): string[] {
   }
 
   if (pathname.startsWith("/advisor/model/")) {
-    const modelName = extractModelName(baseTitle);
+    const modelName = extractSubjectName(baseTitle);
     return [
       `Can I Run ${modelName}`,
       `Can I Run ${modelName} Locally`,
@@ -95,7 +95,7 @@ function pageSpecificKeywords(pathname: string, baseTitle: string): string[] {
   }
 
   if (pathname.startsWith("/advisor/hardware/")) {
-    const hardwareName = extractModelName(baseTitle);
+    const hardwareName = extractSubjectName(baseTitle);
     return [
       `Can I Run AI on ${hardwareName}`,
       `Can ${hardwareName} Run AI`,
@@ -105,7 +105,7 @@ function pageSpecificKeywords(pathname: string, baseTitle: string): string[] {
   }
 
   if (pathname.startsWith("/model/")) {
-    const modelName = extractModelName(baseTitle);
+    const modelName = extractSubjectName(baseTitle);
     return [
       `Can I Run ${modelName}`,
       `Can I Run ${modelName} Locally`,
@@ -141,17 +141,17 @@ function resolveTitle(pathname: string, rawTitle: string): string {
   }
 
   if (pathname.startsWith("/advisor/model/")) {
-    const modelName = extractModelName(baseTitle);
+    const modelName = extractSubjectName(baseTitle);
     return addBrand(`Can I Run ${modelName} Locally? Hardware Requirements`);
   }
 
   if (pathname.startsWith("/advisor/hardware/")) {
-    const hardwareName = extractModelName(baseTitle);
+    const hardwareName = extractSubjectName(baseTitle);
     return addBrand(`Can I Run AI on ${hardwareName}? Compatibility Guide`);
   }
 
   if (pathname.startsWith("/model/")) {
-    const modelName = extractModelName(baseTitle);
+    const modelName = extractSubjectName(baseTitle);
     return addBrand(`Can I Run ${modelName} Locally?`);
   }
 
@@ -164,20 +164,17 @@ function resolveTitle(pathname: string, rawTitle: string): string {
     : addBrand(`Can I Run AI? ${baseTitle}`);
 }
 
-function resolveDescription(pathname: string, rawDescription: string, title: string): string {
+function resolveDescription(pathname: string, rawDescription: string, rawTitle: string): string {
   if (/\bCan I Run\b/i.test(rawDescription)) return shortenDescription(rawDescription);
 
-  const baseTitle = stripBrand(title)
-    .replace(/^Can I Run\s+/i, "")
-    .replace(/\?(.+)?$/, "")
-    .trim();
+  const subjectName = extractSubjectName(rawTitle);
 
   if (pathname.startsWith("/model/") || pathname.startsWith("/advisor/model/")) {
-    return shortenDescription(`Can I Run ${baseTitle} locally? Check minimum RAM, recommended VRAM, storage, compatible GPUs, Macs, quantization options, and practical performance guidance.`);
+    return shortenDescription(`Can I Run ${subjectName} locally? Check minimum RAM, recommended VRAM, storage, compatible GPUs, Macs, quantization options, and practical performance guidance.`);
   }
 
   if (pathname.startsWith("/advisor/hardware/")) {
-    return shortenDescription(`Can I Run AI on ${baseTitle}? See compatible local AI models, usable memory, workload limits, and practical upgrade guidance for this hardware.`);
+    return shortenDescription(`Can I Run AI on ${subjectName}? See compatible local AI models, usable memory, workload limits, and practical upgrade guidance for this hardware.`);
   }
 
   if (NON_TARGET_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
@@ -196,7 +193,7 @@ export function resolveSeo(
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
   const baseTitle = stripBrand(rawTitle);
   const title = resolveTitle(normalizedPath, rawTitle);
-  const description = resolveDescription(normalizedPath, rawDescription, title);
+  const description = resolveDescription(normalizedPath, rawDescription, rawTitle);
   const canonical = new URL(normalizedPath || "/", CANONICAL_ORIGIN);
   const tierKeywords = Object.values(canIRunKeywordTiers).flat();
   const keywords = unique([

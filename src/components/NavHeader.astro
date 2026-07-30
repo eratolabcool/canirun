@@ -4,10 +4,10 @@ import { siteConfig } from "@/config/site";
 
 const currentPath = Astro.url.pathname;
 const links = [
-  { href: "/ai-video", label: "AI Video" },
-  { href: "/advisor", label: "Models & Hardware" },
-  { href: "/compare", label: "Compare GPUs" },
-  { href: "/docs", label: "Guides" },
+  { href: "/ai-video", label: "Can I Run AI Video?" },
+  { href: "/advisor", label: "Can I Run This Model?" },
+  { href: "/compare", label: "Can My GPU Run AI?" },
+  { href: "/docs", label: "Can I Run AI? Guides" },
 ];
 
 function isActive(href: string) {
@@ -17,7 +17,7 @@ function isActive(href: string) {
 
 <header class="sticky top-0 z-50 border-b border-edge/70 bg-surface/80 backdrop-blur-xl">
   <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6" aria-label="Primary navigation">
-    <a href="/" class="group flex items-center gap-2.5" aria-label={`${siteConfig.shortName} home`}>
+    <a href="/" class="group flex items-center gap-2.5" aria-label={`${siteConfig.shortName} home — Can I Run AI locally?`}>
       <span class="flex size-9 items-center justify-center rounded-xl border border-edge bg-surface-card text-accent shadow-sm transition-colors group-hover:border-accent/50">
         <Logo class="size-4" />
       </span>
@@ -29,7 +29,7 @@ function isActive(href: string) {
         <a
           href={href}
           class:list={[
-            "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+            "rounded-lg px-3 py-2 text-xs font-medium transition-colors lg:text-sm",
             isActive(href) ? "bg-surface-card text-primary" : "text-secondary hover:bg-surface-card/70 hover:text-primary",
           ]}
         >
@@ -49,7 +49,7 @@ function isActive(href: string) {
       </button>
 
       <a href="/#hw-panel" class="hidden rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_26px_rgba(101,85,220,0.24)] transition-all hover:-translate-y-0.5 hover:bg-accent-strong sm:inline-flex">
-        Detect my PC
+        Can I Run AI?
       </a>
 
       <button
@@ -81,7 +81,7 @@ function isActive(href: string) {
   </div>
 
   <div class="flex flex-1 flex-col px-5 py-8">
-    <p class="eyebrow">Explore</p>
+    <p class="eyebrow">Can I Run AI?</p>
     <div class="mt-6 grid gap-2">
       {links.map(({ href, label }) => (
         <a
@@ -95,7 +95,7 @@ function isActive(href: string) {
         </a>
       ))}
     </div>
-    <a href="/#hw-panel" class="mobile-menu-link primary-button mt-auto">Detect my PC</a>
+    <a href="/#hw-panel" class="mobile-menu-link primary-button mt-auto">Can I Run AI on My PC?</a>
   </div>
 </div>
 

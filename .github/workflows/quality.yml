@@ -50,14 +50,19 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -f dist/llms.txt
-          grep -q '^# CanIRun' dist/llms.txt
-          grep -q 'Canonical origin: https://www.canirun.app' dist/llms.txt
+          output_dir="dist/client"
+          if [ ! -d "$output_dir" ]; then
+            output_dir="dist"
+          fi
 
-          test -f dist/robots.txt
-          grep -q 'Sitemap: https://www.canirun.app/sitemap-index.xml' dist/robots.txt
+          test -f "$output_dir/llms.txt"
+          grep -q '^# CanIRun' "$output_dir/llms.txt"
+          grep -q 'Canonical origin: https://www.canirun.app' "$output_dir/llms.txt"
 
-          sitemap_files="$(find dist -maxdepth 1 -type f -name 'sitemap*.xml' -print)"
+          test -f "$output_dir/robots.txt"
+          grep -q 'Sitemap: https://www.canirun.app/sitemap-index.xml' "$output_dir/robots.txt"
+
+          sitemap_files="$(find "$output_dir" -maxdepth 1 -type f -name 'sitemap*.xml' -print)"
           test -n "$sitemap_files"
           grep -R -q 'https://www.canirun.app' $sitemap_files
           if grep -R -q 'https://canirun.app' $sitemap_files; then
@@ -65,7 +70,7 @@ jobs:
             exit 1
           fi
 
-          if grep -R -q '<meta name="keywords"' dist --include='*.html'; then
+          if grep -R -q '<meta name="keywords"' "$output_dir" --include='*.html'; then
             echo 'meta keywords must not be emitted.'
             exit 1
           fi

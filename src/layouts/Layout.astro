@@ -3,6 +3,7 @@ import { ClientRouter } from "astro:transitions";
 import "@/styles/global.css";
 import "@/styles/legacy-components.css";
 import { siteConfig } from "@/config/site";
+import { CANONICAL_ORIGIN, resolveSeo } from "@/config/seo";
 import GoogleAnalytics from "@/components/GoogleAnalytics.astro";
 
 interface Props {
@@ -10,17 +11,20 @@ interface Props {
   description?: string;
   image?: string;
   type?: string;
+  keywords?: string[];
 }
 
 const {
-  title = `Can I Run AI Locally? Check Your PC, GPU and Mac — ${siteConfig.shortName}`,
-  description = siteConfig.description,
+  title: rawTitle = `Can I Run AI Locally? Check Your PC, GPU and Mac — ${siteConfig.shortName}`,
+  description: rawDescription = siteConfig.description,
   image = "/og/home.jpg",
   type = "website",
+  keywords: extraKeywords = [],
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL = new URL(image, Astro.site);
+const seo = resolveSeo(Astro.url.pathname, rawTitle, rawDescription, extraKeywords);
+const { title, description, canonical: canonicalURL, keywords } = seo;
+const ogImageURL = new URL(image, CANONICAL_ORIGIN);
 ---
 
 <!doctype html>
@@ -33,6 +37,7 @@ const ogImageURL = new URL(image, Astro.site);
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(", ")} />
     <meta name="theme-color" content="#080b17" />
     <meta name="robots" content="index, follow" />
     <meta name="generator" content={Astro.generator} />
@@ -72,6 +77,19 @@ const ogImageURL = new URL(image, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageURL.href} />
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: title,
+      url: canonicalURL.href,
+      description,
+      isPartOf: {
+        "@type": "WebSite",
+        name: siteConfig.shortName,
+        url: siteConfig.url,
+      },
+    })}></script>
 
     <ClientRouter />
     <slot name="head" />

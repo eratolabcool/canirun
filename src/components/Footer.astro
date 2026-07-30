@@ -15,33 +15,33 @@ const year = new Date().getFullYear();
     <div>
       <a href="/" class="text-lg font-semibold tracking-tight text-primary">{siteConfig.shortName}</a>
       <p class="mt-3 max-w-md text-sm leading-6 text-secondary">
-        A practical hardware decision tool for local language, image, video, audio, and ComfyUI workloads.
+        Can I Run AI locally? Check whether your PC, GPU, or Mac can run local language, image, video, audio, and ComfyUI models before you download or buy hardware.
       </p>
       {hasSlot && <div class="mt-4 text-sm text-secondary"><slot /></div>}
     </div>
 
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Tools</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Can I Run tools</p>
       <div class="mt-4 grid gap-3 text-sm text-secondary">
-        <a href="/" class="hover:text-accent">Detect my PC</a>
-        <a href="/ai-video" class="hover:text-accent">Can I Run AI Video</a>
-        <a href="/advisor" class="hover:text-accent">Model hardware advisor</a>
+        <a href="/" class="hover:text-accent">Can I Run AI Locally?</a>
+        <a href="/ai-video" class="hover:text-accent">Can I Run AI Video?</a>
+        <a href="/advisor" class="hover:text-accent">Can I Run This Model?</a>
       </div>
     </div>
 
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Resources</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Can I Run resources</p>
       <div class="mt-4 grid gap-3 text-sm text-secondary">
-        <a href="/compare" class="hover:text-accent">Compare hardware</a>
-        <a href="/docs" class="hover:text-accent">Guides</a>
-        <a href={siteConfig.repositoryUrl} target="_blank" rel="noopener noreferrer" class="hover:text-accent">GitHub ↗</a>
+        <a href="/compare" class="hover:text-accent">Can My GPU Run AI?</a>
+        <a href="/docs" class="hover:text-accent">Can I Run AI? Guides</a>
+        <a href={siteConfig.repositoryUrl} target="_blank" rel="noopener noreferrer" class="hover:text-accent">Can I Run on GitHub? ↗</a>
       </div>
     </div>
   </div>
 
   <div class="border-t border-edge/70 px-4 py-5">
     <div class="mx-auto flex max-w-7xl flex-col gap-3 text-xs leading-5 text-muted sm:flex-row sm:items-center sm:justify-between sm:px-2">
-      <p>© {year} {siteConfig.shortName}. Independent hardware planning estimates.</p>
+      <p>© {year} {siteConfig.shortName}. Independent local AI compatibility estimates.</p>
       <p class="max-w-3xl">Compatibility, memory, and speed figures are estimates, not performance guarantees. Product names and trademarks belong to their respective owners.</p>
     </div>
   </div>

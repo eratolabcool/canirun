@@ -1,5 +1,11 @@
 {
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "canirun.app" }],
+      "destination": "https://www.canirun.app/:path*",
+      "permanent": true
+    },
     { "source": "/og/home.png", "destination": "/og/home.jpg", "permanent": true },
     { "source": "/og/:id.png", "destination": "/og/:id.jpg", "permanent": true }
   ]

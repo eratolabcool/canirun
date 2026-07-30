@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import NavHeader from "@/components/NavHeader.astro";
+import Footer from "@/components/Footer.astro";
 import ModelListContent from "@/components/ModelListContent.astro";
 import HardwareDecisionReport from "@/components/HardwareDecisionReport.astro";
 import { siteConfig } from "@/config/site";
@@ -9,13 +10,23 @@ const title = `Can I Run AI Locally? Check Your PC, GPU and Mac — ${siteConfig
 const description = "Can I Run AI locally on my PC, GPU, or Mac? Detect your hardware, discover compatible local AI models, estimate speed and memory, and compare practical GPU upgrades.";
 ---
 
-<Layout title={title} description={description}>
+<Layout
+  title={title}
+  description={description}
+  keywords={[
+    "Can I Run AI Locally",
+    "Can My PC Run AI",
+    "Can My GPU Run AI",
+    "Can I Run This Model",
+    "Can I Run AI Video",
+  ]}
+>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebApplication",
       name: siteConfig.name,
-      url: Astro.site?.href,
+      url: siteConfig.url,
       description,
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Web Browser",
@@ -31,42 +42,77 @@ const description = "Can I Run AI locally on my PC, GPU, or Mac? Detect your har
       <div class="hero-orb hero-orb-one"></div>
       <div class="hero-orb hero-orb-two"></div>
       <div class="relative mx-auto max-w-4xl">
-        <p class="eyebrow">Local AI hardware advisor</p>
+        <p class="eyebrow">Can I Run AI hardware checker</p>
         <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] text-primary sm:text-7xl">
-          Can I Run AI locally?
+          Can I Run AI Locally?
         </h1>
         <p class="mx-auto mt-6 max-w-3xl text-lg leading-8 text-secondary sm:text-xl">
-          Detect your PC, GPU, or Mac and see which local AI models actually fit. Compare memory, estimated speed, workload limits, and the most sensible upgrade before downloading a model or buying hardware.
+          Check whether your PC, GPU, or Mac can run local AI. Compare model compatibility, VRAM, RAM, estimated speed, workload limits, and the most sensible upgrade before downloading a model or buying hardware.
         </p>
 
         <div class="mt-8 flex flex-wrap justify-center gap-3">
-          <a href="#hw-panel" class="primary-button">Detect my hardware</a>
-          <a href="/advisor" class="secondary-button">Choose an AI model</a>
+          <a href="#hw-panel" class="primary-button">Can My PC Run AI?</a>
+          <a href="/advisor" class="secondary-button">Can I Run This Model?</a>
         </div>
 
         <div class="mt-10 grid gap-4 text-left md:grid-cols-3">
           <a href="/ai-video" class="feature-card group border-accent/40 bg-accent/5">
-            <span class="eyebrow">New calculator</span>
+            <span class="eyebrow">AI video calculator</span>
             <h2 class="mt-4 text-2xl font-semibold group-hover:text-accent">Can I Run AI Video?</h2>
             <p class="mt-3 text-sm leading-6 text-secondary">Estimate VRAM, generation time, resolution, frames, quantization, CPU offload, and cloud GPU options for Wan, HunyuanVideo, and LTX.</p>
-            <span class="mt-5 inline-flex text-sm font-semibold text-accent">Open AI Video calculator →</span>
+            <span class="mt-5 inline-flex text-sm font-semibold text-accent">Check whether AI video can run →</span>
           </a>
 
           <a href="#hw-panel" class="feature-card group">
-            <span class="eyebrow">Hardware → models</span>
-            <h2 class="mt-4 text-2xl font-semibold group-hover:text-accent">What can my computer run?</h2>
-            <p class="mt-3 text-sm leading-6 text-secondary">Use browser detection and editable hardware profiles to rank compatible local LLMs for your current machine.</p>
-            <span class="mt-5 inline-flex text-sm font-semibold text-accent">Start detection ↓</span>
+            <span class="eyebrow">PC and GPU compatibility</span>
+            <h2 class="mt-4 text-2xl font-semibold group-hover:text-accent">Can My PC Run AI?</h2>
+            <p class="mt-3 text-sm leading-6 text-secondary">Use browser detection and editable hardware profiles to rank compatible local AI models for your current computer.</p>
+            <span class="mt-5 inline-flex text-sm font-semibold text-accent">Check my PC compatibility ↓</span>
           </a>
 
           <a href="/advisor" class="feature-card group">
-            <span class="eyebrow">Model → hardware</span>
-            <h2 class="mt-4 text-2xl font-semibold group-hover:text-accent">What computer does a model need?</h2>
+            <span class="eyebrow">Model system requirements</span>
+            <h2 class="mt-4 text-2xl font-semibold group-hover:text-accent">Can I Run This Model?</h2>
             <p class="mt-3 text-sm leading-6 text-secondary">Compare minimum, comfortable, professional, Mac, and cloud configurations before spending money.</p>
-            <span class="mt-5 inline-flex text-sm font-semibold text-accent">Open hardware advisor →</span>
+            <span class="mt-5 inline-flex text-sm font-semibold text-accent">Check model requirements →</span>
           </a>
         </div>
       </div>
     </header>
   </ModelListContent>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6" aria-labelledby="can-i-run-questions">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Can I Run keyword hub</p>
+        <h2 id="can-i-run-questions" class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Can I Run questions this site answers</h2>
+      </div>
+      <p class="max-w-2xl text-sm leading-6 text-secondary">Every tool starts with a real compatibility question, then connects it to model requirements, GPU memory, system RAM, storage, and practical performance.</p>
+    </div>
+
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <a href="/" class="feature-card group">
+        <span class="eyebrow">Local AI</span>
+        <h3 class="mt-3 text-lg font-semibold group-hover:text-accent">Can I Run AI Locally?</h3>
+      </a>
+      <a href="/ai-video" class="feature-card group">
+        <span class="eyebrow">AI video</span>
+        <h3 class="mt-3 text-lg font-semibold group-hover:text-accent">Can I Run AI Video?</h3>
+      </a>
+      <a href="/advisor" class="feature-card group">
+        <span class="eyebrow">AI model</span>
+        <h3 class="mt-3 text-lg font-semibold group-hover:text-accent">Can I Run This Model?</h3>
+      </a>
+      <a href="/compare" class="feature-card group">
+        <span class="eyebrow">GPU compatibility</span>
+        <h3 class="mt-3 text-lg font-semibold group-hover:text-accent">Can My GPU Run AI?</h3>
+      </a>
+      <a href="#hw-panel" class="feature-card group">
+        <span class="eyebrow">PC compatibility</span>
+        <h3 class="mt-3 text-lg font-semibold group-hover:text-accent">Can My PC Run AI?</h3>
+      </a>
+    </div>
+  </section>
+
+  <Footer />
 </Layout>

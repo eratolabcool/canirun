@@ -44,6 +44,37 @@ jobs:
         env:
           SITE_URL: https://www.canirun.app
 
+      - name: Validate SEO outputs
+        id: seo
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          output_dir="dist/client"
+          if [ ! -d "$output_dir" ]; then
+            output_dir="dist"
+          fi
+
+          test -f "$output_dir/llms.txt"
+          grep -q '^# CanIRun' "$output_dir/llms.txt"
+          grep -q 'Canonical origin: https://www.canirun.app' "$output_dir/llms.txt"
+
+          test -f "$output_dir/robots.txt"
+          grep -q 'Sitemap: https://www.canirun.app/sitemap-index.xml' "$output_dir/robots.txt"
+
+          sitemap_files="$(find "$output_dir" -maxdepth 1 -type f -name 'sitemap*.xml' -print)"
+          test -n "$sitemap_files"
+          grep -R -q 'https://www.canirun.app' $sitemap_files
+          if grep -R -q 'https://canirun.app' $sitemap_files; then
+            echo 'Non-www sitemap URL detected.'
+            exit 1
+          fi
+
+          if grep -R -q '<meta name="keywords"' "$output_dir" --include='*.html'; then
+            echo 'meta keywords must not be emitted.'
+            exit 1
+          fi
+
       - name: Run tests
         id: tests
         continue-on-error: true
@@ -65,7 +96,7 @@ jobs:
       - name: Enforce validation result
         if: always()
         run: |
-          if [ "${{ steps.build.outcome }}" != "success" ] || [ "${{ steps.tests.outcome }}" != "success" ]; then
-            echo "Build or tests failed. Download the validation-logs artifact for details."
+          if [ "${{ steps.build.outcome }}" != "success" ] || [ "${{ steps.seo.outcome }}" != "success" ] || [ "${{ steps.tests.outcome }}" != "success" ]; then
+            echo "Build, SEO validation, or tests failed. Download the validation-logs artifact for details."
             exit 1
           fi

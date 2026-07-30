@@ -6,6 +6,11 @@
       "destination": "https://www.canirun.app/:path*",
       "permanent": true
     },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap-index.xml",
+      "permanent": true
+    },
     { "source": "/og/home.png", "destination": "/og/home.jpg", "permanent": true },
     { "source": "/og/:id.png", "destination": "/og/:id.jpg", "permanent": true }
   ]

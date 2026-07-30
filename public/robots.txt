@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://canirun.ai/sitemap-index.xml
+Sitemap: https://www.canirun.app/sitemap-index.xml
+
+# AI-readable site overview
+# https://www.canirun.app/llms.txt

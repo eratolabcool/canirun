@@ -4,9 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
 
-const site = process.env.SITE_URL ?? 'https://canirun.app';
+const site = process.env.SITE_URL ?? 'https://www.canirun.app';
 
-// Set SITE_URL in production when the custom domain is connected.
+// Keep sitemap, canonical URLs, Open Graph URLs, and production builds on one origin.
 export default defineConfig({
   site,
   adapter: vercel(),

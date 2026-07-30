@@ -1,11 +1,16 @@
 export const CANONICAL_ORIGIN = "https://www.canirun.app";
 
+/**
+ * Search-intent vocabulary used for content planning, titles, descriptions,
+ * internal links, and llms.txt. These terms are intentionally not emitted as
+ * a meta keywords tag.
+ */
 export const canIRunKeywordTiers = {
   oneWord: ["compatibility", "hardware", "GPU", "VRAM", "local"],
-  twoWords: ["AI compatibility", "local AI", "GPU requirements", "hardware checker", "model requirements"],
-  threeWords: ["Can I Run", "AI hardware checker", "local AI checker", "GPU compatibility checker", "model compatibility checker"],
-  fourWords: ["Can I Run AI", "Can My GPU Run", "Can My PC Run", "Can This Model Run", "AI model hardware requirements"],
-  fiveWords: ["Can I Run AI Locally", "Can I Run AI Video", "Can My GPU Run AI", "Can My PC Run AI", "Can I Run This Model"],
+  twoWords: ["AI compatibility", "local AI", "GPU requirements"],
+  threeWords: ["Can I Run", "AI hardware checker"],
+  fourWords: ["Can I Run AI", "Can My GPU Run"],
+  fiveWords: ["Can I Run AI Locally", "Can I Run AI Video", "Can I Run This Model"],
 } as const;
 
 const VIDEO_FAMILY_LABELS: Record<string, string> = {
@@ -27,7 +32,7 @@ export interface ResolvedSeo {
   title: string;
   description: string;
   canonical: URL;
-  keywords: string[];
+  searchTerms: string[];
 }
 
 function stripBrand(title: string): string {
@@ -60,9 +65,9 @@ function extractSubjectName(baseTitle: string): string {
     .trim();
 }
 
-function pageSpecificKeywords(pathname: string, baseTitle: string): string[] {
+function pageSpecificSearchTerms(pathname: string, baseTitle: string): string[] {
   if (pathname === "/") {
-    return ["Can I Run AI Locally", "Can My PC Run AI", "Can My GPU Run AI", "local AI compatibility checker"];
+    return ["Can I Run AI Locally", "Can My PC Run AI", "Can My GPU Run AI"];
   }
 
   if (pathname === "/ai-video") {
@@ -81,7 +86,7 @@ function pageSpecificKeywords(pathname: string, baseTitle: string): string[] {
   }
 
   if (pathname === "/advisor") {
-    return ["Can I Run This Model", "AI model hardware requirements", "Can This Model Run Locally", "AI hardware advisor"];
+    return ["Can I Run This Model", "Can This Model Run Locally", "AI model hardware requirements"];
   }
 
   if (pathname.startsWith("/advisor/model/")) {
@@ -115,11 +120,11 @@ function pageSpecificKeywords(pathname: string, baseTitle: string): string[] {
   }
 
   if (pathname === "/compare") {
-    return ["Can I Run AI on This GPU", "Can My GPU Run AI", "compare AI GPUs", "AI GPU compatibility"];
+    return ["Can I Run AI on This GPU", "Can My GPU Run AI", "AI GPU compatibility"];
   }
 
   if (pathname === "/docs") {
-    return ["Can I Run AI", "Can I Run AI guide", "local AI hardware guide", "AI model requirements explained"];
+    return ["Can I Run AI", "Can I Run AI guide", "local AI hardware guide"];
   }
 
   return [];
@@ -188,19 +193,19 @@ export function resolveSeo(
   pathname: string,
   rawTitle: string,
   rawDescription: string,
-  extraKeywords: string[] = [],
+  extraSearchTerms: string[] = [],
 ): ResolvedSeo {
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
   const baseTitle = stripBrand(rawTitle);
   const title = resolveTitle(normalizedPath, rawTitle);
   const description = resolveDescription(normalizedPath, rawDescription, rawTitle);
   const canonical = new URL(normalizedPath || "/", CANONICAL_ORIGIN);
-  const tierKeywords = Object.values(canIRunKeywordTiers).flat();
-  const keywords = unique([
-    ...tierKeywords,
-    ...pageSpecificKeywords(normalizedPath, baseTitle),
-    ...extraKeywords,
+  const tierSearchTerms = Object.values(canIRunKeywordTiers).flat();
+  const searchTerms = unique([
+    ...tierSearchTerms,
+    ...pageSpecificSearchTerms(normalizedPath, baseTitle),
+    ...extraSearchTerms,
   ]);
 
-  return { title, description, canonical, keywords };
+  return { title, description, canonical, searchTerms };
 }
